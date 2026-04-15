@@ -41,7 +41,7 @@ conference talks introducing openCPQ at MunichJS (2015) and CWG Prague
 (2015).
 
 If you're evaluating this library, the upstream talks and examples are
-still the best starting point for understanding *why* openCPQ is shaped the
+still the best starting point for understanding _why_ openCPQ is shaped the
 way it is.
 
 ## This fork

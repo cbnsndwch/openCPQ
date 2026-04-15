@@ -29,9 +29,9 @@ packages/
 examples/
     basic/                    → smallest useful configurator
     laptop-builder/           → cascading selects + BOM + live pricing
-    pizza-builder/            → CEither + CQuantifiedList + calorie & price rollup
-    insurance-quote/          → CTabbedArea + CValidate modes + problems view
-    tshirt-designer/          → live SVG preview via CWrapVisualization
+    pizza-builder/            → t.either + t.quantifiedList + calorie & price rollup
+    insurance-quote/          → t.tabs + t.validate modes + problems view
+    tshirt-designer/          → live SVG preview via t.wrapVisualization
 .changeset/                   → pending version bumps
 .github/workflows/            → CI (lint/typecheck/test/build) + release
 tsconfig.base.json            → shared strict TS config
@@ -65,25 +65,23 @@ no build step required.
 ## The library in 30 lines
 
 ```tsx
-import {
-    Root,
-    CGroup, cmember,
-    CSelect, ccase, cdefault,
-    CString, CBoolean, CPanel,
-    rootPath, Problems
-} from "@cbnsndwch/opencpq";
-import "@cbnsndwch/opencpq/styles.css";
+import { Root, t, rootPath, Problems } from '@cbnsndwch/opencpq';
+import '@cbnsndwch/opencpq/styles.css';
 
-const LaptopType = CPanel(
-    { header: "Build your laptop" },
-    CGroup([
-        cmember("name", "Config name", CString({ defaultValue: "My laptop" })),
-        cmember("cpu", "CPU", CSelect([
-            cdefault(ccase("i5", "Intel Core i5")),
-            ccase("i7", "Intel Core i7"),
-            ccase("i9", "Intel Core i9"),
-        ])),
-        cmember("touchscreen", "Touchscreen", CBoolean()),
+const LaptopType = t.panel(
+    { header: 'Build your laptop' },
+    t.group([
+        t.member('name', 'Config name', t.string({ defaultValue: 'My laptop' })),
+        t.member(
+            'cpu',
+            'CPU',
+            t.select([
+                t.defaultOption(t.option('i5', 'Intel Core i5')),
+                t.option('i7', 'Intel Core i7'),
+                t.option('i9', 'Intel Core i9')
+            ])
+        ),
+        t.member('touchscreen', 'Touchscreen', t.boolean())
     ])
 );
 
@@ -91,20 +89,20 @@ const LaptopType = CPanel(
     type={LaptopType}
     initialCtxProvider={() => ({
         path: rootPath,
-        problems: new Problems(),
+        problems: new Problems()
     })}
-/>
+/>;
 ```
 
 ## Example apps
 
-| Example | Showcases |
-|---|---|
-| **basic** | Primitives, `CSelect`, `CPanel`, `CGroup`, the `Root` shell |
-| **laptop-builder** | Cascading selects (CPU → motherboard), `CValidate` warning mode, `CBOMEntry`-style rollup via `CSideEffect`, dual `CLinearAggregation` for price, `CWorkbench` with a three-panel layout (config + BOM + problems + live price) |
-| **pizza-builder** | `CEither` for dietary flags, `CValidate` error mode (too many toppings), two parallel `CLinearAggregation` rollups (price + calories), sticky summary card |
-| **insurance-quote** | `CTabbedArea` for a multi-step form, per-field `CValidate` with error and warning modes, case modes in `CSelect` to flag risky picks, live monthly/annual premium card, `VProblems` view linked back to offending fields |
-| **tshirt-designer** | `CWrapVisualization` + `CSideEffect` building a live SVG preview from the current config, BOM + pricing rollups alongside the visualization |
+| Example             | Showcases                                                                                                                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **basic**           | Primitives, `t.select`, `t.panel`, `t.group`, the `Root` shell                                                                                                                                                                  |
+| **laptop-builder**  | Cascading selects (CPU → motherboard), `t.validate` warning mode, BOM rollup via `t.sideEffect`, dual `t.linearAggregation` for price, `t.workbench` with a three-panel layout (config + BOM + problems + live price)           |
+| **pizza-builder**   | `t.either` for dietary flags, `t.validate` error mode (too many toppings), two parallel `t.linearAggregation` rollups (price + calories), sticky summary card                                                                   |
+| **insurance-quote** | `t.tabs` for a multi-step form, per-field `t.validate` with error and warning modes, option modes in `t.select` to flag risky picks, live monthly/annual premium card, `VProblems` view linked back to offending fields         |
+| **tshirt-designer** | `t.wrapVisualization` + `t.sideEffect` building a live SVG preview from the current config, BOM + pricing rollups alongside the visualization                                                                                   |
 
 ## Versioning & publishing
 
