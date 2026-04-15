@@ -1,58 +1,10 @@
-import {
-    useCallback,
-    useEffect,
-    useMemo,
-    useReducer,
-    useRef,
-    type ReactNode
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 
 import type { Type } from '../core/base';
 import type { Ctx } from '../core/types';
 
 import { downloadBlob } from './download';
-
-interface HistoryState {
-    now: unknown;
-    past: unknown[];
-    future: unknown[];
-}
-
-type HistoryAction =
-    | { kind: 'set'; value: unknown }
-    | { kind: 'undo' }
-    | { kind: 'redo' }
-    | { kind: 'reset' }
-    | { kind: 'replace'; state: HistoryState };
-
-function historyReducer(
-    state: HistoryState,
-    action: HistoryAction
-): HistoryState {
-    const { now, past, future } = state;
-    switch (action.kind) {
-        case 'set':
-            return { now: action.value, past: [now, ...past], future: [] };
-        case 'undo':
-            if (past.length === 0) return state;
-            return {
-                now: past[0],
-                past: past.slice(1),
-                future: [now, ...future]
-            };
-        case 'redo':
-            if (future.length === 0) return state;
-            return {
-                now: future[0],
-                past: [now, ...past],
-                future: future.slice(1)
-            };
-        case 'reset':
-            return { now: undefined, past: [now, ...past], future: [] };
-        case 'replace':
-            return action.state;
-    }
-}
+import { useHistory, type HistoryState } from './use-history';
 
 const STORAGE_KEY = 'openCPQ';
 
@@ -85,24 +37,23 @@ export function Root({
     storageKey = STORAGE_KEY,
     renderToolbar
 }: RootProps): ReactNode {
-    const [state, dispatch] = useReducer(historyReducer, {
-        now: initialValue,
-        past: [],
-        future: []
-    });
+    const history = useHistory(initialValue);
     const rootRef = useRef<HTMLDivElement>(null);
 
     const api: RootApi = useMemo(
         () => ({
-            now: state.now,
-            canUndo: state.past.length > 0,
-            canRedo: state.future.length > 0,
-            undo: () => dispatch({ kind: 'undo' }),
-            redo: () => dispatch({ kind: 'redo' }),
-            reset: () => dispatch({ kind: 'reset' }),
+            now: history.now,
+            canUndo: history.canUndo,
+            canRedo: history.canRedo,
+            undo: history.undo,
+            redo: history.redo,
+            reset: () => history.set(undefined),
             save: () => {
                 if (typeof localStorage !== 'undefined') {
-                    localStorage.setItem(storageKey, JSON.stringify(state));
+                    localStorage.setItem(
+                        storageKey,
+                        JSON.stringify(history.state)
+                    );
                 }
             },
             restore: () => {
@@ -110,7 +61,7 @@ export function Root({
                 const raw = localStorage.getItem(storageKey);
                 if (!raw) return;
                 try {
-                    dispatch({ kind: 'replace', state: JSON.parse(raw) });
+                    history.replace(JSON.parse(raw) as HistoryState);
                 } catch {
                     // ignore
                 }
@@ -121,26 +72,26 @@ export function Root({
             importFile: async (file: File) => {
                 const text = await file.text();
                 try {
-                    dispatch({ kind: 'set', value: JSON.parse(text) });
+                    history.set(JSON.parse(text));
                 } catch (e) {
                     console.error('Failed to import file', e);
                 }
             },
             exportFile: () => {
-                const blob = new Blob([JSON.stringify(state.now, null, 2)], {
+                const blob = new Blob([JSON.stringify(history.now, null, 2)], {
                     type: 'application/json;charset=utf-8'
                 });
                 downloadBlob(blob, 'openCPQ.json');
             }
         }),
-        [state, storageKey]
+        [history, storageKey]
     );
 
     useEffect(() => {
         if (!rootRef.current) {
             return;
         }
-        
+
         const el = rootRef.current;
         const onKey = (e: KeyboardEvent): void => {
             if (!e.ctrlKey || e.altKey || e.metaKey) return;
@@ -152,20 +103,20 @@ export function Root({
                 api.redo();
             }
         };
-        
+
         el.addEventListener('keydown', onKey);
         return () => el.removeEventListener('keydown', onKey);
     }, [api]);
 
     const updateTo = useCallback(
-        (newValue: unknown) => dispatch({ kind: 'set', value: newValue }),
-        []
+        (newValue: unknown) => history.set(newValue),
+        [history]
     );
 
     const baseCtx = initialCtxProvider();
     const node = type.makeNode({
         ...baseCtx,
-        value: state.now,
+        value: history.now,
         updateTo
     } as Ctx);
 
