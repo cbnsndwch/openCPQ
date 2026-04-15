@@ -1,49 +1,49 @@
 name: Release
 
 on:
-    push:
-        branches: [master]
+  push:
+    branches: [master]
 
 concurrency:
-    group: release-${{ github.workflow }}-${{ github.ref }}
+  group: release-${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-    release:
-        name: Release
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            pull-requests: write
-            id-token: write
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: pnpm
-                  registry-url: https://registry.npmjs.org
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
 
-            - name: Install
-              run: pnpm install --frozen-lockfile
+      - name: Install
+        run: pnpm install --frozen-lockfile
 
-            - name: Build
-              run: pnpm turbo run build --filter=./packages/*
+      - name: Build
+        run: pnpm turbo run build --filter=./packages/*
 
-            - name: Create Release PR or Publish
-              id: changesets
-              uses: changesets/action@v1
-              with:
-                  publish: pnpm release
-                  version: pnpm version-packages
-                  commit: "chore: version packages"
-                  title: "chore: version packages"
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-                  NPM_CONFIG_PROVENANCE: "true"
+      - name: Create Release PR or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+          version: pnpm version-packages
+          commit: 'chore: version packages'
+          title: 'chore: version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
