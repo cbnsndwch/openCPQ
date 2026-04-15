@@ -29,44 +29,28 @@ Peer dependencies: `react@^19` and `react-dom@^19`.
 ## Hello world
 
 ```tsx
-import { createRoot } from "react-dom/client";
-import {
-    Root,
-    CGroup,
-    cmember,
-    CSelect,
-    ccase,
-    cdefault,
-    CString,
-    CBoolean,
-    CPanel,
-    rootPath,
-    Problems
-} from "@cbnsndwch/opencpq";
-import "@cbnsndwch/opencpq/styles.css";
+import { createRoot } from 'react-dom/client';
+import { Root, t, rootPath, Problems } from '@cbnsndwch/opencpq';
+import '@cbnsndwch/opencpq/styles.css';
 
-const LaptopType = CPanel(
-    { header: "Build your laptop" },
-    CGroup([
-        cmember(
-            "name",
-            "Config name",
-            CString({ defaultValue: "My laptop" })
-        ),
-        cmember(
-            "cpu",
-            "CPU",
-            CSelect([
-                cdefault(ccase("i5", "Intel Core i5")),
-                ccase("i7", "Intel Core i7"),
-                ccase("i9", "Intel Core i9")
+const LaptopType = t.panel(
+    { header: 'Build your laptop' },
+    t.group([
+        t.member('name', 'Config name', t.string({ defaultValue: 'My laptop' })),
+        t.member(
+            'cpu',
+            'CPU',
+            t.select([
+                t.defaultOption(t.option('i5', 'Intel Core i5')),
+                t.option('i7', 'Intel Core i7'),
+                t.option('i9', 'Intel Core i9')
             ])
         ),
-        cmember("touchscreen", "Touchscreen", CBoolean())
+        t.member('touchscreen', 'Touchscreen', t.boolean())
     ])
 );
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
     <Root
         type={LaptopType}
         initialCtxProvider={() => ({
@@ -81,30 +65,34 @@ createRoot(document.getElementById("root")!).render(
 
 ### Core
 
+All type factories and value helpers are exposed under a single `t`
+namespace (as used above). Individual named exports are also available
+for tree-shaking and advanced use.
+
 - `Type` / `Node` with prototype-chain-based visitor dispatch
 - `rootPath`, `Problems`, `serialize` / `deserialize` (handles aliased and
   circular structures)
-- `SimpleAdder` / `NamedAdder` + `CLinearAggregation` / `CMultiplying` for
-  rollups that propagate through the tree
-- `CSideEffect`, `CNameSpace` / `CNamed`, `COp`
+- `SimpleAdder` / `NamedAdder` + `t.linearAggregation` / `t.multiplying`
+  for rollups that propagate through the tree
+- `t.sideEffect`, `t.namespace` / `t.named`, `t.op`
 
 ### Components
 
-- Primitives: `CString`, `CTextarea`, `CInteger`, `CNumber`, `CDate`,
-  `CTime`, `CBoolean`, `CUnit`
-- Selection: `CSelect` (with `plain` / `warning` / `error` / `hidden`
-  modes), `CEither`
-- Structure: `CGroup`, `CTable`, `CFixedTable`, `CPanel`, `CTabbedArea`,
-  `CAccordion`, `CLabeled`, `CHtml`
-- Validation: `CValidate`, `CValidationMessages`
+- Primitives: `t.string`, `t.textarea`, `t.integer`, `t.number`, `t.date`,
+  `t.time`, `t.boolean`, `t.unit`
+- Selection: `t.select` (with `plain` / `warning` / `error` / `hidden`
+  option modes), `t.either`
+- Structure: `t.group`, `t.table`, `t.fixedTable`, `t.panel`, `t.tabs`,
+  `t.accordion`, `t.labeled`, `t.html`
+- Validation: `t.validate`, `t.validationMessages`
 
 ### Domain
 
-- `CBOMEntry` / `VBOM` — bill of materials with CSV export
-- `CQuantified` / `CQuantifiedList` — multiplicative quantity logic
-- `CImage` / `CSVGRoot` / `CTransform` / `CWrapVisualization` — live SVG
-  visualization composed alongside the data tree
-- `CTOCEntry` / `VTOC` — table of contents
+- `t.bomEntry` / `VBOM` — bill of materials with CSV export
+- `t.quantified` / `t.quantifiedList` — multiplicative quantity logic
+- `t.image` / `t.svgRoot` / `t.transform` / `t.wrapVisualization` — live
+  SVG visualization composed alongside the data tree
+- `t.tocEntry` / `VTOC` — table of contents
 
 ### App shells
 
@@ -119,13 +107,13 @@ The monorepo at
 several example apps under `examples/` that each highlight a different
 feature:
 
-| Example | Showcases |
-|---|---|
-| `basic` | Primitives, `CSelect`, `CPanel`, the `Root` shell |
-| `laptop-builder` | Cascading selects, BOM rollup, live pricing, `CWorkbench` |
-| `pizza-builder` | `CEither`, dual price + calorie rollups, validation |
-| `insurance-quote` | `CTabbedArea`, validation modes, problems view |
-| `tshirt-designer` | Live SVG preview via `CWrapVisualization` |
+| Example           | Showcases                                                 |
+| ----------------- | --------------------------------------------------------- |
+| `basic`           | Primitives, `t.select`, `t.panel`, the `Root` shell        |
+| `laptop-builder`  | Cascading selects, BOM rollup, live pricing, `t.workbench` |
+| `pizza-builder`   | `t.either`, dual price + calorie rollups, validation       |
+| `insurance-quote` | `t.tabs`, validation modes, problems view                  |
+| `tshirt-designer` | Live SVG preview via `t.wrapVisualization`                 |
 
 Clone the repo and run `pnpm --filter <example> dev` to try them.
 
