@@ -1,33 +1,23 @@
-import { createRoot } from "react-dom/client";
-import type { ReactNode } from "react";
 import {
     Root,
-    CGroup,
-    cmember,
-    CSelect,
-    ccase,
-    cdefault,
-    CEither,
-    CPanel,
-    CSideEffect,
-    CValidate,
-    CWorkbench,
-    CLinearAggregation,
+    t,
     SimpleAdder,
     rootPath,
     Problems,
     View,
     type Ctx,
     type Node as CpqNode
-} from "@cbnsndwch/opencpq";
-import "@cbnsndwch/opencpq/styles.css";
+} from '@cbnsndwch/opencpq';
+import type { ReactNode } from 'react';
+import { createRoot } from 'react-dom/client';
+import '@cbnsndwch/opencpq/styles.css';
 
 /*
  * Pizza builder — showcases:
- *   - CEither for dietary choices (vegan / gluten-free)
- *   - Two parallel CLinearAggregation rollups (price + calories)
- *   - CValidate with error mode (too many toppings)
- *   - CWorkbench rendering live nutrition / price card
+ *   - t.either for dietary choices (vegan / gluten-free)
+ *   - Two parallel t.linearAggregation rollups (price + calories)
+ *   - t.validate with error mode (too many toppings)
+ *   - t.workbench rendering live nutrition / price card
  */
 
 interface PartInfo {
@@ -37,106 +27,108 @@ interface PartInfo {
 }
 
 const SIZES: Record<string, PartInfo> = {
-    small: { label: "Small (10\")", price: 9, kcal: 800 },
-    medium: { label: "Medium (12\")", price: 12, kcal: 1100 },
-    large: { label: "Large (14\")", price: 15, kcal: 1500 },
-    xl: { label: "XL (16\")", price: 18, kcal: 1900 }
+    small: { label: 'Small (10")', price: 9, kcal: 800 },
+    medium: { label: 'Medium (12")', price: 12, kcal: 1100 },
+    large: { label: 'Large (14")', price: 15, kcal: 1500 },
+    xl: { label: 'XL (16")', price: 18, kcal: 1900 }
 };
 
 const SAUCES: Record<string, PartInfo> = {
-    tomato: { label: "Classic tomato", price: 0, kcal: 40 },
-    bbq: { label: "BBQ", price: 1, kcal: 90 },
-    white: { label: "Garlic white sauce", price: 2, kcal: 120 },
-    pesto: { label: "Basil pesto", price: 2, kcal: 150 }
+    tomato: { label: 'Classic tomato', price: 0, kcal: 40 },
+    bbq: { label: 'BBQ', price: 1, kcal: 90 },
+    white: { label: 'Garlic white sauce', price: 2, kcal: 120 },
+    pesto: { label: 'Basil pesto', price: 2, kcal: 150 }
 };
 
 const CHEESES: Record<string, PartInfo> = {
-    mozzarella: { label: "Mozzarella", price: 0, kcal: 220 },
-    "four-cheese": { label: "Four-cheese blend", price: 3, kcal: 340 },
-    vegan: { label: "Plant-based mozzarella", price: 4, kcal: 180 },
-    none: { label: "No cheese", price: -2, kcal: 0 }
+    mozzarella: { label: 'Mozzarella', price: 0, kcal: 220 },
+    'four-cheese': { label: 'Four-cheese blend', price: 3, kcal: 340 },
+    vegan: { label: 'Plant-based mozzarella', price: 4, kcal: 180 },
+    none: { label: 'No cheese', price: -2, kcal: 0 }
 };
 
 const TOPPINGS: Record<string, PartInfo> = {
-    pepperoni: { label: "Pepperoni", price: 2, kcal: 140 },
-    sausage: { label: "Italian sausage", price: 2.5, kcal: 160 },
-    mushroom: { label: "Mushrooms", price: 1.5, kcal: 30 },
-    olive: { label: "Black olives", price: 1.5, kcal: 50 },
-    pepper: { label: "Bell peppers", price: 1.5, kcal: 25 },
-    onion: { label: "Red onion", price: 1, kcal: 20 },
-    pineapple: { label: "Pineapple", price: 2, kcal: 60 },
-    jalapeno: { label: "Jalapeños", price: 1.5, kcal: 15 }
+    pepperoni: { label: 'Pepperoni', price: 2, kcal: 140 },
+    sausage: { label: 'Italian sausage', price: 2.5, kcal: 160 },
+    mushroom: { label: 'Mushrooms', price: 1.5, kcal: 30 },
+    olive: { label: 'Black olives', price: 1.5, kcal: 50 },
+    pepper: { label: 'Bell peppers', price: 1.5, kcal: 25 },
+    onion: { label: 'Red onion', price: 1, kcal: 20 },
+    pineapple: { label: 'Pineapple', price: 2, kcal: 60 },
+    jalapeno: { label: 'Jalapeños', price: 1.5, kcal: 15 }
 };
 
-function partCase<K extends string>(
+function partOption<K extends string>(
     code: K,
     catalogue: Record<K, PartInfo>
-): ReturnType<typeof ccase> {
+): ReturnType<typeof t.option> {
     const info = catalogue[code];
     const priceLabel =
         info.price === 0
-            ? ""
+            ? ''
             : info.price > 0
               ? ` (+$${info.price})`
               : ` (-$${Math.abs(info.price)})`;
-    return ccase(
+    return t.option(
         code,
         `${info.label}${priceLabel}`,
-        CSideEffect((_node, ctx) => {
+        t.sideEffect((_node, ctx) => {
             (ctx.price as SimpleAdder).add(info.price);
             (ctx.kcal as SimpleAdder).add(info.kcal);
         })
     );
 }
 
-const SizeSelect = CSelect([
-    partCase("small", SIZES),
-    cdefault(partCase("medium", SIZES)),
-    partCase("large", SIZES),
-    partCase("xl", SIZES)
+const SizeSelect = t.select([
+    partOption('small', SIZES),
+    t.defaultOption(partOption('medium', SIZES)),
+    partOption('large', SIZES),
+    partOption('xl', SIZES)
 ]);
 
-const SauceSelect = CSelect([
-    cdefault(partCase("tomato", SAUCES)),
-    partCase("bbq", SAUCES),
-    partCase("white", SAUCES),
-    partCase("pesto", SAUCES)
+const SauceSelect = t.select([
+    t.defaultOption(partOption('tomato', SAUCES)),
+    partOption('bbq', SAUCES),
+    partOption('white', SAUCES),
+    partOption('pesto', SAUCES)
 ]);
 
-const CheeseSelect = CSelect([
-    cdefault(partCase("mozzarella", CHEESES)),
-    partCase("four-cheese", CHEESES),
-    partCase("vegan", CHEESES),
-    partCase("none", CHEESES)
+const CheeseSelect = t.select([
+    t.defaultOption(partOption('mozzarella', CHEESES)),
+    partOption('four-cheese', CHEESES),
+    partOption('vegan', CHEESES),
+    partOption('none', CHEESES)
 ]);
 
-// Toppings: each is an on/off CEither that adds its price/kcal when enabled.
-const ToppingsGroup = CPanel(
-    { header: "🫑 Toppings (max 6)", collapsible: true, defaultOpen: true },
-    CValidate(
+// Toppings: each is an on/off t.either that adds its price/kcal when enabled.
+const ToppingsGroup = t.panel(
+    { header: '🫑 Toppings (max 6)', collapsible: true, defaultOpen: true },
+    t.validate(
         (_node, { error, info }, ctx) => {
             const toppings = (ctx.value ?? {}) as Record<
                 string,
-                { $case?: boolean } | undefined
+                { $option?: boolean } | undefined
             >;
             const enabled = Object.entries(toppings).filter(
-                ([_, v]) => v?.$case === true
+                ([_, v]) => v?.$option === true
             ).length;
             if (enabled > 6) {
-                error(`Too many toppings: ${enabled}. Max 6 for structural integrity.`);
+                error(
+                    `Too many toppings: ${enabled}. Max 6 for structural integrity.`
+                );
             } else if (enabled > 0) {
-                info(`${enabled} topping${enabled === 1 ? "" : "s"} selected.`);
+                info(`${enabled} topping${enabled === 1 ? '' : 's'} selected.`);
             }
         },
-        CGroup(
+        t.group(
             Object.entries(TOPPINGS).map(([code, info]) =>
-                cmember(
+                t.member(
                     code,
                     `${info.label} ($${info.price} / ${info.kcal} kcal)`,
-                    CEither(
+                    t.either(
                         { defaultValue: false },
                         // thenType runs when enabled — add price/kcal
-                        CSideEffect((_node, ctx) => {
+                        t.sideEffect((_node, ctx) => {
                             (ctx.price as SimpleAdder).add(info.price);
                             (ctx.kcal as SimpleAdder).add(info.kcal);
                         })
@@ -147,25 +139,25 @@ const ToppingsGroup = CPanel(
     )
 );
 
-const DietaryPanel = CPanel(
-    { header: "🌱 Dietary", collapsible: true, defaultOpen: false },
-    CGroup([
-        cmember(
-            "glutenFree",
-            "Gluten-free crust (+$3)",
-            CEither(
+const DietaryPanel = t.panel(
+    { header: '🌱 Dietary', collapsible: true, defaultOpen: false },
+    t.group([
+        t.member(
+            'glutenFree',
+            'Gluten-free crust (+$3)',
+            t.either(
                 { defaultValue: false },
-                CSideEffect((_node, ctx) => {
+                t.sideEffect((_node, ctx) => {
                     (ctx.price as SimpleAdder).add(3);
                 })
             )
         ),
-        cmember(
-            "extraCheese",
-            "Extra cheese (+$2, +200 kcal)",
-            CEither(
+        t.member(
+            'extraCheese',
+            'Extra cheese (+$2, +200 kcal)',
+            t.either(
                 { defaultValue: false },
-                CSideEffect((_node, ctx) => {
+                t.sideEffect((_node, ctx) => {
                     (ctx.price as SimpleAdder).add(2);
                     (ctx.kcal as SimpleAdder).add(200);
                 })
@@ -174,26 +166,26 @@ const DietaryPanel = CPanel(
     ])
 );
 
-const ConfigurationType = CPanel(
-    { header: "🍕 Build your pizza", collapsible: false },
-    CGroup([
-        cmember("size", "Size", SizeSelect),
-        cmember("sauce", "Sauce", SauceSelect),
-        cmember("cheese", "Cheese", CheeseSelect),
-        cmember("toppings", "", ToppingsGroup),
-        cmember("dietary", "", DietaryPanel)
+const ConfigurationType = t.panel(
+    { header: '🍕 Build your pizza', collapsible: false },
+    t.group([
+        t.member('size', 'Size', SizeSelect),
+        t.member('sauce', 'Sauce', SauceSelect),
+        t.member('cheese', 'Cheese', CheeseSelect),
+        t.member('toppings', '', ToppingsGroup),
+        t.member('dietary', '', DietaryPanel)
     ])
 );
 
-const PizzaType = CLinearAggregation(
-    "price",
+const PizzaType = t.linearAggregation(
+    'price',
     SimpleAdder,
-    CLinearAggregation(
-        "kcal",
+    t.linearAggregation(
+        'kcal',
         SimpleAdder,
-        CWorkbench(
+        t.workbench(
             (ctx: Ctx) => [
-                new View("summary", () => {
+                new View('summary', () => {
                     const price = (ctx.price as SimpleAdder).get();
                     const kcal = (ctx.kcal as SimpleAdder).get();
                     return (
@@ -219,7 +211,7 @@ const PizzaType = CLinearAggregation(
                 <div className="pizza-layout">
                     <div className="pizza-main">{node.render()}</div>
                     <aside className="pizza-side">
-                        {views.find(v => v.name === "summary")?.render()}
+                        {views.find(v => v.name === 'summary')?.render()}
                     </aside>
                 </div>
             ),
@@ -241,7 +233,7 @@ body { margin: 0; font-family: system-ui, sans-serif; background: #fef3c7; }
 @media (max-width: 900px) { .pizza-layout { grid-template-columns: 1fr; } .pizza-side { position: static; } }
 `;
 
-const container = document.getElementById("root");
+const container = document.getElementById('root');
 if (container) {
     createRoot(container).render(
         <>

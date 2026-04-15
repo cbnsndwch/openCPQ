@@ -1,18 +1,6 @@
-import { createRoot } from "react-dom/client";
-import type { ReactNode } from "react";
 import {
     Root,
-    CGroup,
-    cmember,
-    CString,
-    CSelect,
-    ccase,
-    cdefault,
-    CPanel,
-    CSideEffect,
-    CWrapVisualization,
-    CWorkbench,
-    CLinearAggregation,
+    t,
     SimpleAdder,
     NamedAdder,
     Visualization,
@@ -22,32 +10,34 @@ import {
     type Ctx,
     type Node as CpqNode,
     type Renderable
-} from "@cbnsndwch/opencpq";
-import "@cbnsndwch/opencpq/styles.css";
+} from '@cbnsndwch/opencpq';
+import type { ReactNode } from 'react';
+import { createRoot } from 'react-dom/client';
+import '@cbnsndwch/opencpq/styles.css';
 
 /*
  * T-shirt designer — showcases:
- *   - CWrapVisualization to compose an SVG tree alongside the data tree
- *   - CSideEffect to add SVG primitives to the visualization container
+ *   - t.wrapVisualization to compose an SVG tree alongside the data tree
+ *   - t.sideEffect to add SVG primitives to the visualization container
  *   - Live preview driven by the configuration state
  *   - BOM + pricing rollup alongside the visualization
  */
 
 const COLORS: Record<string, { label: string; fill: string; price: number }> = {
-    white: { label: "White", fill: "#f9fafb", price: 0 },
-    black: { label: "Black", fill: "#111827", price: 0 },
-    navy: { label: "Navy", fill: "#1e3a8a", price: 0 },
-    red: { label: "Red", fill: "#b91c1c", price: 0 },
-    forest: { label: "Forest green", fill: "#166534", price: 2 },
-    mustard: { label: "Mustard", fill: "#ca8a04", price: 2 }
+    white: { label: 'White', fill: '#f9fafb', price: 0 },
+    black: { label: 'Black', fill: '#111827', price: 0 },
+    navy: { label: 'Navy', fill: '#1e3a8a', price: 0 },
+    red: { label: 'Red', fill: '#b91c1c', price: 0 },
+    forest: { label: 'Forest green', fill: '#166534', price: 2 },
+    mustard: { label: 'Mustard', fill: '#ca8a04', price: 2 }
 };
 
 const SIZES: Record<string, { label: string; price: number }> = {
-    S: { label: "S", price: 0 },
-    M: { label: "M", price: 0 },
-    L: { label: "L", price: 0 },
-    XL: { label: "XL", price: 2 },
-    XXL: { label: "XXL", price: 4 }
+    S: { label: 'S', price: 0 },
+    M: { label: 'M', price: 0 },
+    L: { label: 'L', price: 0 },
+    XL: { label: 'XL', price: 2 },
+    XXL: { label: 'XXL', price: 4 }
 };
 
 const PRINTS: Record<
@@ -55,12 +45,12 @@ const PRINTS: Record<
     { label: string; draw: (color: string) => ReactNode; price: number }
 > = {
     none: {
-        label: "No print",
+        label: 'No print',
         draw: () => null,
         price: 0
     },
     star: {
-        label: "Star",
+        label: 'Star',
         draw: (color: string) => (
             <polygon
                 points="100,60 115,95 153,95 123,117 135,152 100,131 65,152 77,117 47,95 85,95"
@@ -70,7 +60,7 @@ const PRINTS: Record<
         price: 5
     },
     heart: {
-        label: "Heart",
+        label: 'Heart',
         draw: (color: string) => (
             <path
                 d="M100 150 C 60 110, 60 80, 85 80 C 95 80, 100 88, 100 95 C 100 88, 105 80, 115 80 C 140 80, 140 110, 100 150 Z"
@@ -80,7 +70,7 @@ const PRINTS: Record<
         price: 5
     },
     text: {
-        label: "Custom text",
+        label: 'Custom text',
         draw: (color: string) => (
             <text
                 x="100"
@@ -99,10 +89,10 @@ const PRINTS: Record<
 };
 
 const INK_COLORS: Record<string, { label: string; fill: string }> = {
-    white: { label: "White ink", fill: "#f9fafb" },
-    black: { label: "Black ink", fill: "#111827" },
-    gold: { label: "Gold ink", fill: "#facc15" },
-    silver: { label: "Silver ink", fill: "#d1d5db" }
+    white: { label: 'White ink', fill: '#f9fafb' },
+    black: { label: 'Black ink', fill: '#111827' },
+    gold: { label: 'Gold ink', fill: '#facc15' },
+    silver: { label: 'Silver ink', fill: '#d1d5db' }
 };
 
 // Helper: make a renderable from a React node.
@@ -125,10 +115,7 @@ function shirtSilhouette(fill: string): Renderable {
 }
 
 // Draws the selected print with the selected ink color.
-function printOverlay(
-    printCode: string,
-    inkColor: string
-): Renderable {
+function printOverlay(printCode: string, inkColor: string): Renderable {
     return renderableOf(() => {
         const p = PRINTS[printCode];
         if (!p) return null;
@@ -136,20 +123,20 @@ function printOverlay(
     });
 }
 
-const ConfigurationType = CPanel(
-    { header: "👕 Design your t-shirt", collapsible: false },
-    CGroup([
-        cmember("name", "Design name", CString({ defaultValue: "My tee" })),
+const ConfigurationType = t.panel(
+    { header: '👕 Design your t-shirt', collapsible: false },
+    t.group([
+        t.member('name', 'Design name', t.string({ defaultValue: 'My tee' })),
 
-        cmember(
-            "color",
-            "Shirt color",
-            CSelect(
+        t.member(
+            'color',
+            'Shirt color',
+            t.select(
                 Object.entries(COLORS).map(([code, info], i) => {
-                    const c = ccase(
+                    const c = t.option(
                         code,
-                        `${info.label}${info.price > 0 ? ` (+$${info.price})` : ""}`,
-                        CSideEffect((_n, ctx) => {
+                        `${info.label}${info.price > 0 ? ` (+$${info.price})` : ''}`,
+                        t.sideEffect((_n, ctx) => {
                             (ctx.price as SimpleAdder).add(info.price);
                             (ctx.bom as NamedAdder).add(`shirt-${code}`, 1);
                             (ctx.visualization as Visualization).add(
@@ -157,90 +144,102 @@ const ConfigurationType = CPanel(
                             );
                         })
                     );
-                    return i === 1 ? cdefault(c) : c;
+                    return i === 1 ? t.defaultOption(c) : c;
                 })
             )
         ),
 
-        cmember(
-            "size",
-            "Size",
-            CSelect(
+        t.member(
+            'size',
+            'Size',
+            t.select(
                 Object.entries(SIZES).map(([code, info], i) => {
-                    const c = ccase(
+                    const c = t.option(
                         code,
-                        `${info.label}${info.price > 0 ? ` (+$${info.price})` : ""}`,
-                        CSideEffect((_n, ctx) => {
+                        `${info.label}${info.price > 0 ? ` (+$${info.price})` : ''}`,
+                        t.sideEffect((_n, ctx) => {
                             (ctx.price as SimpleAdder).add(info.price);
                             (ctx.bom as NamedAdder).add(`size-${code}`, 1);
                         })
                     );
-                    return i === 2 ? cdefault(c) : c;
+                    return i === 2 ? t.defaultOption(c) : c;
                 })
             )
         ),
 
-        cmember(
-            "print",
-            "Print",
-            CSelect(
+        // Print: records price/BOM only. Actual drawing happens below.
+        t.member(
+            'print',
+            'Print',
+            t.select(
                 Object.entries(PRINTS).map(([code, info]) => {
-                    const c = ccase(
+                    const c = t.option(
                         code,
-                        `${info.label}${info.price > 0 ? ` (+$${info.price})` : ""}`,
-                        CSideEffect((_n, ctx) => {
+                        `${info.label}${info.price > 0 ? ` (+$${info.price})` : ''}`,
+                        t.sideEffect((_n, ctx) => {
                             (ctx.price as SimpleAdder).add(info.price);
-                            if (code !== "none") {
+                            if (code !== 'none') {
                                 (ctx.bom as NamedAdder).add(`print-${code}`, 1);
                             }
-                            // Register the print draw-fn on ctx so the ink-color
-                            // member can assemble the overlay.
-                            (
-                                ctx as unknown as { _printCode: string }
-                            )._printCode = code;
                         })
                     );
-                    return code === "none" ? cdefault(c) : c;
+                    return code === 'none' ? t.defaultOption(c) : c;
                 })
             )
         ),
 
-        cmember(
-            "inkColor",
-            "Ink color",
-            CSelect(
+        // Ink colour: records the choice only.
+        t.member(
+            'inkColor',
+            'Ink color',
+            t.select(
                 Object.entries(INK_COLORS).map(([code, info], i) => {
-                    const c = ccase(
-                        code,
-                        info.label,
-                        CSideEffect((_n, ctx) => {
-                            const printCode =
-                                (ctx as unknown as { _printCode?: string })
-                                    ._printCode ?? "none";
-                            (ctx.visualization as Visualization).add(
-                                printOverlay(printCode, info.fill)
-                            );
-                        })
-                    );
-                    return i === 0 ? cdefault(c) : c;
+                    const c = t.option(code, info.label);
+                    return i === 0 ? t.defaultOption(c) : c;
                 })
             )
-        )
+        ),
+
+        // Group function-member: runs with the GROUP's ctx, so ctx.value is
+        // the whole group bag. We read both `print` and `inkColor` off of it
+        // and push the overlay Renderable in one place, which is the
+        // idiomatic way to share state between siblings in openCPQ.
+        (groupCtx: Ctx) => {
+            const val = groupCtx.value as
+                | {
+                      print?: { $option?: string };
+                      inkColor?: { $option?: string };
+                  }
+                | undefined;
+            const printCode = val?.print?.$option ?? 'none';
+            const inkCode = val?.inkColor?.$option ?? 'white';
+            const ink = INK_COLORS[inkCode] ?? INK_COLORS.white!;
+            return t.unlabelledMember(
+                '__overlay',
+                t.sideEffect((_n, ctx) => {
+                    (ctx.visualization as Visualization).add(
+                        printOverlay(printCode, ink.fill)
+                    );
+                })
+            );
+        }
     ])
 );
 
-// Shirt price starts at $18.
-const TshirtType = CSideEffect(
-    (_n, ctx) => {
-        (ctx.price as SimpleAdder).add(18);
-    },
-    CLinearAggregation(
-        "price",
-        SimpleAdder,
-        CLinearAggregation(
-            "bom",
-            NamedAdder,
-            CWrapVisualization(
+// Shirt price starts at $18. The base-price side-effect has to live
+// INSIDE the t.linearAggregation("price", ...) wrapper — aggregators are
+// installed on the sub-tree's ctx, not the parent's.
+const TshirtType = t.linearAggregation(
+    'price',
+    SimpleAdder,
+    t.linearAggregation(
+        'bom',
+        NamedAdder,
+        t.sideEffect(
+            (_n, ctx) => {
+                (ctx.price as SimpleAdder).add(18);
+            },
+            t.wrapVisualization(
                 (children: ReactNode[]): ReactNode => (
                     <svg
                         viewBox="0 0 200 220"
@@ -250,12 +249,12 @@ const TshirtType = CSideEffect(
                         {children}
                     </svg>
                 ),
-                CWorkbench(
+                t.workbench(
                     (ctx: Ctx) => [
-                        new View("preview", () =>
+                        new View('preview', () =>
                             (ctx.visualization as Visualization).render()
                         ),
-                        new View("price", () => {
+                        new View('price', () => {
                             const price = (ctx.price as SimpleAdder).get();
                             return (
                                 <div className="tee-price">
@@ -266,23 +265,21 @@ const TshirtType = CSideEffect(
                                 </div>
                             );
                         }),
-                        new View("bom", () => {
+                        new View('bom', () => {
                             const bom = ctx.bom as NamedAdder;
                             const rows = bom.mapItems(
                                 (name, qty) => ({ name, qty }),
                                 { sorted: true }
                             );
                             return rows.length === 0 ? (
-                                <div className="tee-empty">
-                                    (no items yet)
-                                </div>
+                                <div className="tee-empty">(no items yet)</div>
                             ) : (
                                 <ul className="tee-bom">
                                     {rows.map(({ name, qty }) => (
                                         <li key={name}>
                                             <span className="tee-bom-qty">
                                                 ×{qty}
-                                            </span>{" "}
+                                            </span>{' '}
                                             {name}
                                         </li>
                                     ))}
@@ -298,12 +295,12 @@ const TshirtType = CSideEffect(
                                 <div className="tee-main">{node.render()}</div>
                                 <aside className="tee-side">
                                     <div className="tee-preview">
-                                        {find("preview")?.render()}
+                                        {find('preview')?.render()}
                                     </div>
-                                    {find("price")?.render()}
+                                    {find('price')?.render()}
                                     <section className="tee-section">
                                         <h3>Bill of materials</h3>
-                                        {find("bom")?.render()}
+                                        {find('bom')?.render()}
                                     </section>
                                 </aside>
                             </div>
@@ -334,7 +331,7 @@ body { margin: 0; font-family: system-ui, sans-serif; background: #f5f5f4; }
 @media (max-width: 900px) { .tee-layout { grid-template-columns: 1fr; } .tee-side { position: static; } }
 `;
 
-const container = document.getElementById("root");
+const container = document.getElementById('root');
 if (container) {
     createRoot(container).render(
         <>
