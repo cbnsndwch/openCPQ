@@ -1,8 +1,10 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
-import { ConfirmOrRetractButton } from "./confirm-retract";
-import { HBox } from "./display";
+import type { ReactNode } from 'react';
+
+import { Type, Node } from '../core/base';
+import type { Ctx } from '../core/types';
+
+import { ConfirmOrRetractButton } from './confirm-retract';
+import { HBox } from './display';
 
 export class PrimitiveValueNode extends Node {}
 
@@ -36,15 +38,15 @@ function makeSimpleType<N extends PrimitiveValueNode>(
 }
 
 function cls(...parts: (string | undefined | false | null)[]): string {
-    return parts.filter(Boolean).join(" ");
+    return parts.filter(Boolean).join(' ');
 }
 
 // --- String -----------------------------------------------------------------
 
 export class StringNode extends PrimitiveValueNode {
     get text(): string {
-        const { defaultValue = "", value } = this.__options as SimpleOptions;
-        if (value === undefined || value === "") return String(defaultValue);
+        const { defaultValue = '', value } = this.__options as SimpleOptions;
+        if (value === undefined || value === '') return String(defaultValue);
         return String(value);
     }
 
@@ -53,14 +55,20 @@ export class StringNode extends PrimitiveValueNode {
     }
 
     override render(): ReactNode {
-        const { value, updateTo, defaultValue = "", className, userSelected, retract } =
-            this.__options as SimpleOptions;
+        const {
+            value,
+            updateTo,
+            defaultValue = '',
+            className,
+            userSelected,
+            retract
+        } = this.__options as SimpleOptions;
         return (
-            <div className={cls("cpq-primitive cpq-string", className)}>
+            <div className={cls('cpq-primitive cpq-string', className)}>
                 <input
                     type="text"
                     className="cpq-input"
-                    value={(value as string | undefined) ?? ""}
+                    value={(value as string | undefined) ?? ''}
                     placeholder={String(defaultValue)}
                     onChange={e => updateTo(e.target.value)}
                 />
@@ -73,19 +81,25 @@ export class StringNode extends PrimitiveValueNode {
         );
     }
 }
-export const CString = makeSimpleType("string", StringNode);
+export const string = makeSimpleType('string', StringNode);
 
 // --- Textarea ---------------------------------------------------------------
 
 export class TextareaNode extends StringNode {
     override render(): ReactNode {
-        const { value, updateTo, defaultValue = "", className, userSelected, retract } =
-            this.__options as SimpleOptions;
+        const {
+            value,
+            updateTo,
+            defaultValue = '',
+            className,
+            userSelected,
+            retract
+        } = this.__options as SimpleOptions;
         return (
-            <div className={cls("cpq-primitive cpq-textarea", className)}>
+            <div className={cls('cpq-primitive cpq-textarea', className)}>
                 <textarea
                     className="cpq-input"
-                    value={(value as string | undefined) ?? ""}
+                    value={(value as string | undefined) ?? ''}
                     placeholder={String(defaultValue)}
                     onChange={e => updateTo(e.target.value)}
                 />
@@ -98,18 +112,18 @@ export class TextareaNode extends StringNode {
         );
     }
 }
-export const CTextarea = makeSimpleType("textarea", TextareaNode);
+export const textarea = makeSimpleType('textarea', TextareaNode);
 
 // --- Integer ----------------------------------------------------------------
 
 export class IntegerNode extends StringNode {
     constructor(options: SimpleOptions) {
         const normalized = { ...options };
-        normalized.className = cls("cpq-integer", options.className);
-        if (typeof options.defaultValue === "number") {
+        normalized.className = cls('cpq-integer', options.className);
+        if (typeof options.defaultValue === 'number') {
             normalized.defaultValue = options.defaultValue.toFixed(0);
         }
-        if (options.value !== undefined && typeof options.value !== "string") {
+        if (options.value !== undefined && typeof options.value !== 'string') {
             normalized.value = String(options.value);
         }
         super(normalized);
@@ -132,18 +146,18 @@ export class IntegerNode extends StringNode {
         );
     }
 }
-export const CInteger = makeSimpleType("integer", IntegerNode);
+export const integer = makeSimpleType('integer', IntegerNode);
 
 // --- Number (float) ---------------------------------------------------------
 
 export class NumberNode extends StringNode {
     constructor(options: SimpleOptions) {
         const normalized = { ...options };
-        normalized.className = cls("cpq-number", options.className);
-        if (typeof options.defaultValue === "number") {
+        normalized.className = cls('cpq-number', options.className);
+        if (typeof options.defaultValue === 'number') {
             normalized.defaultValue = String(options.defaultValue);
         }
-        if (options.value !== undefined && typeof options.value !== "string") {
+        if (options.value !== undefined && typeof options.value !== 'string') {
             normalized.value = String(options.value);
         }
         super(normalized);
@@ -153,29 +167,29 @@ export class NumberNode extends StringNode {
         return parseFloat(this.text);
     }
 }
-export const CNumber = makeSimpleType("number", NumberNode);
+export const number = makeSimpleType('number', NumberNode);
 
 // --- Date -------------------------------------------------------------------
 
 function toDateInputValue(d: Date | undefined): string {
-    if (!d || isNaN(d.getTime())) return "";
+    if (!d || isNaN(d.getTime())) return '';
     const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
 }
 
 function toTimeInputValue(d: Date | undefined): string {
-    if (!d || isNaN(d.getTime())) return "";
-    const h = String(d.getHours()).padStart(2, "0");
-    const m = String(d.getMinutes()).padStart(2, "0");
+    if (!d || isNaN(d.getTime())) return '';
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
     return `${h}:${m}`;
 }
 
 function coerceDate(v: unknown): Date | undefined {
     if (v === undefined || v === null) return undefined;
     if (v instanceof Date) return v;
-    if (typeof v === "string" || typeof v === "number") {
+    if (typeof v === 'string' || typeof v === 'number') {
         const d = new Date(v);
         return isNaN(d.getTime()) ? undefined : d;
     }
@@ -189,7 +203,8 @@ export class DateNode extends PrimitiveValueNode {
     }
 
     override render(): ReactNode {
-        const { value, updateTo, userSelected } = this.__options as SimpleOptions;
+        const { value, updateTo, userSelected } = this
+            .__options as SimpleOptions;
         return (
             <HBox>
                 <input
@@ -198,7 +213,7 @@ export class DateNode extends PrimitiveValueNode {
                     value={toDateInputValue(this.value)}
                     onChange={e => {
                         const v = e.target.value;
-                        updateTo(v === "" ? undefined : new Date(v));
+                        updateTo(v === '' ? undefined : new Date(v));
                     }}
                 />
                 {(value !== undefined || this.value !== undefined) && (
@@ -212,7 +227,7 @@ export class DateNode extends PrimitiveValueNode {
         );
     }
 }
-export const CDate = makeSimpleType("date", DateNode);
+export const date = makeSimpleType('date', DateNode);
 
 // --- Time -------------------------------------------------------------------
 
@@ -223,7 +238,8 @@ export class TimeNode extends PrimitiveValueNode {
     }
 
     override render(): ReactNode {
-        const { value, updateTo, userSelected } = this.__options as SimpleOptions;
+        const { value, updateTo, userSelected } = this
+            .__options as SimpleOptions;
         return (
             <HBox>
                 <input
@@ -232,11 +248,11 @@ export class TimeNode extends PrimitiveValueNode {
                     value={toTimeInputValue(this.value)}
                     onChange={e => {
                         const v = e.target.value;
-                        if (v === "") {
+                        if (v === '') {
                             updateTo(undefined);
                             return;
                         }
-                        const [hh, mm] = v.split(":").map(Number);
+                        const [hh, mm] = v.split(':').map(Number);
                         const d = new Date();
                         d.setHours(hh ?? 0, mm ?? 0, 0, 0);
                         updateTo(d);
@@ -253,7 +269,7 @@ export class TimeNode extends PrimitiveValueNode {
         );
     }
 }
-export const CTime = makeSimpleType("time", TimeNode);
+export const time = makeSimpleType('time', TimeNode);
 
 // --- Boolean ----------------------------------------------------------------
 
@@ -265,14 +281,18 @@ interface BooleanOptions extends SimpleOptions {
 
 export class BooleanNode extends PrimitiveValueNode {
     override get value(): boolean {
-        const { defaultValue = false, value = defaultValue } =
-            this.__options as BooleanOptions;
+        const { defaultValue = false, value = defaultValue } = this
+            .__options as BooleanOptions;
         return Boolean(value);
     }
 
     override render(): ReactNode {
-        const { userSelected, retract, disabled = false, updateTo } =
-            this.__options as BooleanOptions;
+        const {
+            userSelected,
+            retract,
+            disabled = false,
+            updateTo
+        } = this.__options as BooleanOptions;
         return (
             <span className="cpq-boolean">
                 <input
@@ -292,11 +312,11 @@ export class BooleanNode extends PrimitiveValueNode {
     }
 
     renderResult(): ReactNode {
-        const { yes = "yes", no = "no" } = this.__options as BooleanOptions;
+        const { yes = 'yes', no = 'no' } = this.__options as BooleanOptions;
         return <span>{this.value ? yes : no}</span>;
     }
 }
-export const CBoolean = makeSimpleType("boolean", BooleanNode);
+export const boolean = makeSimpleType('boolean', BooleanNode);
 
 // --- Unit (empty) -----------------------------------------------------------
 
@@ -305,7 +325,7 @@ export class UnitNode extends Node {
         return null;
     }
 }
-export const CUnit = (): Type =>
-    new Type("unit", function makeUnit(_ctx: Ctx) {
+export const unit = (): Type =>
+    new Type('unit', function makeUnit(_ctx: Ctx) {
         return new UnitNode();
     });

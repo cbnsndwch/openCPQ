@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
+import type { ReactNode } from 'react';
+
+import { Type, Node } from '../core/base';
 
 export interface PanelOptions {
     header?: ReactNode;
@@ -8,8 +9,8 @@ export interface PanelOptions {
     className?: string;
 }
 
-export function CPanel(options: PanelOptions, type: Type): Type {
-    return new Type("panel", function makePanel(ctx) {
+export function panel(options: PanelOptions, type: Type): Type {
+    return new Type('panel', function makePanel(ctx) {
         return new PanelNode(options, type.makeNode(ctx));
     });
 }
@@ -29,13 +30,18 @@ export class PanelNode extends Node {
     }
 
     override render(): ReactNode {
-        const { header, collapsible, defaultOpen = true, className } = this._opts;
+        const {
+            header,
+            collapsible,
+            defaultOpen = true,
+            className
+        } = this._opts;
         const body = this._inner.render();
         if (collapsible) {
             return (
                 <details
                     open={defaultOpen}
-                    className={`cpq-panel cpq-panel-collapsible ${className ?? ""}`}
+                    className={`cpq-panel cpq-panel-collapsible ${className ?? ''}`}
                 >
                     {header !== undefined && <summary>{header}</summary>}
                     <div className="cpq-panel-body">{body}</div>
@@ -43,7 +49,7 @@ export class PanelNode extends Node {
             );
         }
         return (
-            <section className={`cpq-panel ${className ?? ""}`}>
+            <section className={`cpq-panel ${className ?? ''}`}>
                 {header !== undefined && (
                     <header className="cpq-panel-header">{header}</header>
                 )}

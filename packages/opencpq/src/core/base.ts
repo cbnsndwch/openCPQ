@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
-import type { Ctx, INode, Visitor } from "./types";
+import type { ReactNode } from 'react';
+
+import type { Ctx, INode, Visitor } from './types';
 
 export type MakeNode<C extends Ctx = Ctx> = (ctx: C) => Node;
 
@@ -40,14 +41,14 @@ export class Node implements INode {
         let proto = Object.getPrototypeOf(this);
         while (proto && proto.constructor !== Node) {
             const name: string = proto.constructor.name;
-            if (name.endsWith("Node")) {
+            if (name.endsWith('Node')) {
                 const prefix = name.slice(0, -4);
                 const key =
                     prefix === prefix.toUpperCase()
                         ? prefix.toLowerCase()
                         : prefix[0]!.toLowerCase() + prefix.slice(1);
                 const fn = v[key];
-                if (typeof fn === "function") {
+                if (typeof fn === 'function') {
                     return fn(this);
                 }
             }

@@ -1,12 +1,14 @@
-import type { ReactNode } from "react";
-import { Type } from "../core/base";
-import type { Ctx } from "../core/types";
-import { GroupNode, preprocessMembers } from "./group";
-import type { Member, RawMemberDecls } from "./group";
-import { LabeledNode } from "./label";
+import type { ReactNode } from 'react';
 
-export function CTabbedArea(rawMemberDecls: RawMemberDecls): Type {
-    return new Type("tabbed-area", function makeTabbedArea(ctx) {
+import { Type } from '../core/base';
+import type { Ctx } from '../core/types';
+
+import { GroupNode, preprocessMembers } from './group';
+import type { Member, RawMemberDecls } from './group';
+import { LabeledNode } from './label';
+
+export function tabs(rawMemberDecls: RawMemberDecls): Type {
+    return new Type('tabbed-area', function makeTabbedArea(ctx) {
         const { value = {}, updateTo } = ctx as Ctx & {
             value?: { selectedView?: number };
         };
@@ -22,7 +24,11 @@ export class TabbedAreaNode extends GroupNode {
     private readonly _selected: number;
     private readonly _select: (key: number) => void;
 
-    constructor(selected: number, select: (key: number) => void, members: Member[]) {
+    constructor(
+        selected: number,
+        select: (key: number) => void,
+        members: Member[]
+    ) {
         super(members);
         this._selected = selected;
         this._select = select;
@@ -38,7 +44,7 @@ export class TabbedAreaNode extends GroupNode {
             <div className="cpq-tabbed-area" role="tablist">
                 <div className="cpq-tabs">
                     {members.map(({ node }, i) => {
-                        let label: ReactNode = "???";
+                        let label: ReactNode = '???';
                         if (node instanceof LabeledNode) label = node.label;
                         const selected = i === activeIndex;
                         return (
@@ -47,7 +53,7 @@ export class TabbedAreaNode extends GroupNode {
                                 type="button"
                                 role="tab"
                                 aria-selected={selected}
-                                className={`cpq-tab ${selected ? "cpq-tab-active" : ""}`}
+                                className={`cpq-tab ${selected ? 'cpq-tab-active' : ''}`}
                                 onClick={() => this._select(i)}
                             >
                                 {label}
@@ -61,7 +67,11 @@ export class TabbedAreaNode extends GroupNode {
                         const body =
                             node instanceof LabeledNode ? node.inner : node;
                         return (
-                            <div key={i} role="tabpanel" className="cpq-tab-panel">
+                            <div
+                                key={i}
+                                role="tabpanel"
+                                className="cpq-tab-panel"
+                            >
                                 {body.render()}
                             </div>
                         );

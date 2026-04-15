@@ -1,8 +1,10 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
-import type { ProblemMessage, ProblemLevel } from "../core/problems";
-import { CUnit } from "./primitives";
+import type { ReactNode } from 'react';
+
+import { Type, Node } from '../core/base';
+import type { ProblemMessage, ProblemLevel } from '../core/problems';
+import type { Ctx } from '../core/types';
+
+import { unit } from './primitives';
 
 export type ValidationCallbacks = {
     error: (msg: ReactNode) => void;
@@ -17,9 +19,9 @@ export type ValidationTestFn<N extends Node = Node> = (
 ) => void;
 
 const iconFor: Record<ProblemLevel, string> = {
-    error: "⛔",
-    warning: "⚠",
-    info: "ℹ"
+    error: '⛔',
+    warning: '⚠',
+    info: 'ℹ'
 };
 
 export function renderValidation(messages: ProblemMessage[]): ReactNode {
@@ -27,14 +29,10 @@ export function renderValidation(messages: ProblemMessage[]): ReactNode {
     return (
         <div className="cpq-validate">
             {messages.map(({ level, msg, fragment }, i) => (
-                <div
-                    key={i}
-                    id={fragment}
-                    className={`cpq-validate-${level}`}
-                >
+                <div key={i} id={fragment} className={`cpq-validate-${level}`}>
                     <span className="cpq-validate-icon" aria-hidden="true">
                         {iconFor[level]}
-                    </span>{" "}
+                    </span>{' '}
                     {msg}
                 </div>
             ))}
@@ -54,8 +52,11 @@ export function renderWithValidation(
     );
 }
 
-export function CValidate(testFn: ValidationTestFn, type: Type = CUnit()): Type {
-    return new Type("validate", function makeValidate(ctx) {
+export function validate(
+    testFn: ValidationTestFn,
+    type: Type = unit()
+): Type {
+    return new Type('validate', function makeValidate(ctx) {
         return new ValidationNode(testFn, type.makeNode(ctx), ctx);
     });
 }
@@ -76,9 +77,9 @@ export class ValidationNode extends Node {
         testFn(
             this,
             {
-                error: emit("error"),
-                warning: emit("warning"),
-                info: emit("info")
+                error: emit('error'),
+                warning: emit('warning'),
+                info: emit('info')
             },
             ctx
         );
@@ -98,9 +99,11 @@ export class ValidationNode extends Node {
     }
 }
 
-export function CValidationMessages(messages: ProblemMessage[]): Type {
-    return new Type("validationMessages", function makeValidationMessages(ctx) {
-        return new ValidationMessagesNode(messages.map(m => ctx.problems.add(m)));
+export function validationMessages(messages: ProblemMessage[]): Type {
+    return new Type('validationMessages', function makeValidationMessages(ctx) {
+        return new ValidationMessagesNode(
+            messages.map(m => ctx.problems.add(m))
+        );
     });
 }
 

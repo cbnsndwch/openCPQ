@@ -1,5 +1,5 @@
-import { Type } from "./base";
-import type { Ctx } from "./types";
+import { Type } from './base';
+import type { Ctx } from './types';
 
 export interface Aggregator<TAdd extends unknown[] = unknown[]> {
     add(...args: TAdd): void;
@@ -60,7 +60,10 @@ abstract class NamedAdderBase implements Aggregator<[string, number?]> {
     multiplying(factor: number): NamedMultiplyingAdder {
         return new NamedMultiplyingAdder(this, factor);
     }
-    closeMultiplying(_factor: number, _child: Aggregator<[string, number?]>): void {
+    closeMultiplying(
+        _factor: number,
+        _child: Aggregator<[string, number?]>
+    ): void {
         // no-op
     }
     subAggregator(): NamedAdder {
@@ -120,14 +123,13 @@ class NamedMultiplyingAdder extends NamedAdderBase {
  * Ctx property `linearAggregators` is a list of ctx property names, each
  * holding an aggregator that multiplication factors are applied to.
  */
-export function CLinearAggregation(
+export function linearAggregation(
     name: string,
     AggregatorClass: new () => Aggregator,
     type: Type
 ): Type {
-    return new Type("linearAggregation", function makeLinearAggregation(ctx) {
-        const existing =
-            (ctx.linearAggregators as string[] | undefined) ?? [];
+    return new Type('linearAggregation', function makeLinearAggregation(ctx) {
+        const existing = (ctx.linearAggregators as string[] | undefined) ?? [];
         const subAggregators = existing.slice();
         if (!subAggregators.includes(name)) subAggregators.push(name);
         return type.makeNode({
@@ -138,8 +140,8 @@ export function CLinearAggregation(
     });
 }
 
-export function CMultiplying(factor: number, type: Type): Type {
-    return new Type("multiplying", function makeMultiplying(ctx) {
+export function multiplying(factor: number, type: Type): Type {
+    return new Type('multiplying', function makeMultiplying(ctx) {
         const subCtx: Ctx = { ...ctx, quantity: factor };
         const linearAggregators =
             (ctx.linearAggregators as string[] | undefined) ?? [];

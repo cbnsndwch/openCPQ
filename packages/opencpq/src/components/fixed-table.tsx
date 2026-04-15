@@ -1,10 +1,12 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
-import { CGroup, cmember, GroupNode } from "./group";
-import type { RawMemberDecls, Member } from "./group";
-import { LabeledNode } from "./label";
-import type { Column } from "./table";
+import type { ReactNode } from 'react';
+
+import { Type, Node } from '../core/base';
+import type { Ctx } from '../core/types';
+
+import { group, member, GroupNode } from './group';
+import type { RawMemberDecls, Member } from './group';
+import { LabeledNode } from './label';
+import type { Column } from './table';
 
 export type RawColumnsSpec =
     | Column
@@ -12,29 +14,26 @@ export type RawColumnsSpec =
     | RawColumnsSpec[]
     | ((ctx: Ctx) => RawColumnsSpec);
 
-function preprocessColumns(
-    rawColumnsSpec: RawColumnsSpec,
-    ctx: Ctx
-): Column[] {
+function preprocessColumns(rawColumnsSpec: RawColumnsSpec, ctx: Ctx): Column[] {
     const columns: Column[] = [];
     function process(c: RawColumnsSpec): void {
         if (c === undefined) return;
         if (Array.isArray(c)) c.forEach(process);
-        else if (typeof c === "function") process(c(ctx));
+        else if (typeof c === 'function') process(c(ctx));
         else columns.push(c);
     }
     process(rawColumnsSpec);
     return columns;
 }
 
-export function CFixedTable(
+export function fixedTable(
     columnsSpec: RawColumnsSpec,
     rows: RawMemberDecls
 ): Type {
-    return new Type("fixedTable", function makeFixedTable(ctx) {
+    return new Type('fixedTable', function makeFixedTable(ctx) {
         return new FixedTableNode({
             columns: preprocessColumns(columnsSpec, ctx),
-            rows: CGroup(rows).makeNode(ctx) as GroupNode
+            rows: group(rows).makeNode(ctx) as GroupNode
         });
     });
 }
@@ -94,7 +93,9 @@ export class FixedTableNode extends Node {
                                     const member = inner.member?.(name);
                                     return (
                                         <td key={name}>
-                                            {member === undefined ? null : member.render()}
+                                            {member === undefined
+                                                ? null
+                                                : member.render()}
                                         </td>
                                     );
                                 })}
@@ -107,10 +108,10 @@ export class FixedTableNode extends Node {
     }
 }
 
-export function crow(
+export function row(
     name: string,
     label: ReactNode,
     cells: RawMemberDecls
 ): { name: string; type: Type } {
-    return cmember(name, label, CGroup(cells));
+    return member(name, label, group(cells));
 }

@@ -1,12 +1,18 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
-import { GroupNode, preprocessMembers } from "./group";
-import type { Member, RawMemberDecls } from "./group";
-import { LabeledNode } from "./label";
+import type { ReactNode } from 'react';
 
-export function CAccordion(rawMemberDecls: RawMemberDecls): Type {
-    return new Type("accordion", function makeAccordion(ctx) {
+import { Node, Type } from '../core/base';
+import type { Ctx } from '../core/types';
+
+import {
+    GroupNode,
+    preprocessMembers,
+    type Member,
+    type RawMemberDecls
+} from './group';
+import { LabeledNode } from './label';
+
+export function accordion(rawMemberDecls: RawMemberDecls): Type {
+    return new Type('accordion', function makeAccordion(ctx) {
         const { value = {}, updateTo } = ctx as Ctx & {
             value?: { selectedView?: number };
         };
@@ -22,7 +28,11 @@ export class AccordionNode extends GroupNode {
     private readonly _selected: number;
     private readonly _select: (key: number) => void;
 
-    constructor(selected: number, select: (key: number) => void, members: Member[]) {
+    constructor(
+        selected: number,
+        select: (key: number) => void,
+        members: Member[]
+    ) {
         super(members);
         this._selected = selected;
         this._select = select;
@@ -32,7 +42,7 @@ export class AccordionNode extends GroupNode {
         return (
             <div className="cpq-accordion">
                 {this.mapMembers(({ node }, i) => {
-                    let label: ReactNode = "???";
+                    let label: ReactNode = '???';
                     let body: Node = node;
                     if (node instanceof LabeledNode) {
                         label = node.label;
@@ -52,7 +62,9 @@ export class AccordionNode extends GroupNode {
                         >
                             <summary>{label}</summary>
                             {open && (
-                                <div className="cpq-accordion-body">{body.render()}</div>
+                                <div className="cpq-accordion-body">
+                                    {body.render()}
+                                </div>
                             )}
                         </details>
                     );

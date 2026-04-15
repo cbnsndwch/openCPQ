@@ -1,7 +1,9 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
-import { CLabeled } from "./label";
+import type { ReactNode } from 'react';
+
+import { Type, Node } from '../core/base';
+import type { Ctx } from '../core/types';
+
+import { labeled } from './label';
 
 export interface MemberDecl {
     name: string;
@@ -19,20 +21,24 @@ export type RawMemberDecls =
     | RawMemberDecls[]
     | ((ctx: Ctx) => RawMemberDecls);
 
-export function cmember(
+export function member(
     name: string,
     label: ReactNode,
     type: Type
 ): MemberDecl {
-    return { name, type: CLabeled(label, type) };
+    return { name, type: labeled(label, type) };
 }
 
-export function cUnlabelledMember(name: string, type: Type): MemberDecl {
+export function unlabelledMember(name: string, type: Type): MemberDecl {
     return { name, type };
 }
 
 function makeMemberNode({ name, type }: MemberDecl, ctx: Ctx): Member {
-    const { path, value = {}, updateTo } = ctx as Ctx & {
+    const {
+        path,
+        value = {},
+        updateTo
+    } = ctx as Ctx & {
         value?: Record<string, unknown>;
     };
     return {
@@ -42,7 +48,10 @@ function makeMemberNode({ name, type }: MemberDecl, ctx: Ctx): Member {
             path: path.ext(name),
             value: (value as Record<string, unknown>)[name],
             updateTo: (newValue: unknown) =>
-                updateTo({ ...(value as Record<string, unknown>), [name]: newValue })
+                updateTo({
+                    ...(value as Record<string, unknown>),
+                    [name]: newValue
+                })
         })
     };
 }
@@ -56,7 +65,7 @@ export function preprocessMembers(
         if (m === undefined) return;
         if (Array.isArray(m)) {
             m.forEach(process);
-        } else if (typeof m === "function") {
+        } else if (typeof m === 'function') {
             process(m(ctx));
         } else {
             members.push(makeMemberNode(m, ctx));
@@ -66,8 +75,8 @@ export function preprocessMembers(
     return members;
 }
 
-export function CGroup(rawMemberDecls: RawMemberDecls): Type {
-    return new Type("group", function makeGroup(ctx) {
+export function group(rawMemberDecls: RawMemberDecls): Type {
+    return new Type('group', function makeGroup(ctx) {
         return new GroupNode(preprocessMembers(rawMemberDecls, ctx));
     });
 }

@@ -1,30 +1,34 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
-import type { GroupNode } from "./group";
+import type { ReactNode } from 'react';
+
+import { Type, Node } from '../core/base';
+import type { Ctx } from '../core/types';
+
+import type { GroupNode } from './group';
 
 export interface Column {
     name: string;
     label: ReactNode;
 }
 
-export function ccolumn(name: string, label: ReactNode): Column {
+export function column(name: string, label: ReactNode): Column {
     return { name, label };
 }
 
-export interface CTableOptions {
+export interface TableOptions {
     defaultValue?: unknown[];
 }
 
-export function CTable(
-    options: CTableOptions,
+export function table(
+    options: TableOptions,
     columnLabels: Column[],
     rowType: Type
 ): Type {
     const { defaultValue = [] } = options;
-    return new Type("table", function makeTable(ctx) {
+    return new Type('table', function makeTable(ctx) {
         const { updateTo } = ctx;
-        const value = ((ctx.value as unknown[] | undefined) ?? defaultValue).slice();
+        const value = (
+            (ctx.value as unknown[] | undefined) ?? defaultValue
+        ).slice();
         const rows: Node[] = value.map((element = {}, i) => {
             const updateElement = (newElement: unknown): void => {
                 const newList = value.slice();
@@ -120,11 +124,14 @@ export class TableNode extends Node {
                                     />
                                 </td>
                                 {columnLabels.map(({ name }) => {
-                                    const member =
-                                        (row as unknown as GroupNode).member?.(name);
+                                    const member = (
+                                        row as unknown as GroupNode
+                                    ).member?.(name);
                                     return (
                                         <td key={name}>
-                                            {member === undefined ? null : member.render()}
+                                            {member === undefined
+                                                ? null
+                                                : member.render()}
                                         </td>
                                     );
                                 })}
@@ -153,12 +160,18 @@ function RowOps({
             <summary className="cpq-btn cpq-btn-dim">⋯</summary>
             <menu>
                 <li>
-                    <button type="button" onClick={() => splice(i + 1, 0, undefined)}>
+                    <button
+                        type="button"
+                        onClick={() => splice(i + 1, 0, undefined)}
+                    >
                         insert
                     </button>
                 </li>
                 <li>
-                    <button type="button" onClick={() => splice(i + 1, 0, list[i])}>
+                    <button
+                        type="button"
+                        onClick={() => splice(i + 1, 0, list[i])}
+                    >
                         copy
                     </button>
                 </li>
@@ -171,7 +184,9 @@ function RowOps({
                     <li>
                         <button
                             type="button"
-                            onClick={() => splice(i - 1, 2, list[i], list[i - 1])}
+                            onClick={() =>
+                                splice(i - 1, 2, list[i], list[i - 1])
+                            }
                         >
                             up
                         </button>

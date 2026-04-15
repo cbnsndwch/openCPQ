@@ -1,8 +1,9 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
+import type { ReactNode } from 'react';
 
-export function CLabeled(label: ReactNode, type: Type): Type {
-    return new Type("labeled", function makeLabeled(ctx) {
+import { Type, Node } from '../core/base';
+
+export function labeled(label: ReactNode, type: Type): Type {
+    return new Type('labeled', function makeLabeled(ctx) {
         return new LabeledNode(label, type.makeNode(ctx));
     });
 }
@@ -33,7 +34,9 @@ export class LabeledNode extends Node {
         return (
             <div className="cpq-labeled">
                 <div className="cpq-labeled-label">{this._label}</div>
-                <div className="cpq-labeled-data">{this._innerNode.render()}</div>
+                <div className="cpq-labeled-data">
+                    {this._innerNode.render()}
+                </div>
             </div>
         );
     }

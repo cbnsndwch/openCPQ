@@ -2,7 +2,10 @@
  * with consumer styles. Override anything freely. */
 
 .cpq-root {
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
     color: #222;
     outline: none;
 }
@@ -176,7 +179,7 @@
     list-style: none;
 }
 .cpq-panel-collapsible > summary::before {
-    content: "▶ ";
+    content: '▶ ';
     display: inline-block;
     transition: transform 0.15s;
 }

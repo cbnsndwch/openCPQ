@@ -5,10 +5,12 @@ import {
     useReducer,
     useRef,
     type ReactNode
-} from "react";
-import type { Type } from "../core/base";
-import type { Ctx } from "../core/types";
-import { downloadBlob } from "./download";
+} from 'react';
+
+import type { Type } from '../core/base';
+import type { Ctx } from '../core/types';
+
+import { downloadBlob } from './download';
 
 interface HistoryState {
     now: unknown;
@@ -17,44 +19,47 @@ interface HistoryState {
 }
 
 type HistoryAction =
-    | { kind: "set"; value: unknown }
-    | { kind: "undo" }
-    | { kind: "redo" }
-    | { kind: "reset" }
-    | { kind: "replace"; state: HistoryState };
+    | { kind: 'set'; value: unknown }
+    | { kind: 'undo' }
+    | { kind: 'redo' }
+    | { kind: 'reset' }
+    | { kind: 'replace'; state: HistoryState };
 
-function historyReducer(state: HistoryState, action: HistoryAction): HistoryState {
+function historyReducer(
+    state: HistoryState,
+    action: HistoryAction
+): HistoryState {
     const { now, past, future } = state;
     switch (action.kind) {
-        case "set":
+        case 'set':
             return { now: action.value, past: [now, ...past], future: [] };
-        case "undo":
+        case 'undo':
             if (past.length === 0) return state;
             return {
                 now: past[0],
                 past: past.slice(1),
                 future: [now, ...future]
             };
-        case "redo":
+        case 'redo':
             if (future.length === 0) return state;
             return {
                 now: future[0],
                 past: [now, ...past],
                 future: future.slice(1)
             };
-        case "reset":
+        case 'reset':
             return { now: undefined, past: [now, ...past], future: [] };
-        case "replace":
+        case 'replace':
             return action.state;
     }
 }
 
-const STORAGE_KEY = "openCPQ";
+const STORAGE_KEY = 'openCPQ';
 
 export interface RootProps {
     type: Type;
     initialValue?: unknown;
-    initialCtxProvider: () => Omit<Ctx, "value" | "updateTo">;
+    initialCtxProvider: () => Omit<Ctx, 'value' | 'updateTo'>;
     storageKey?: string;
     renderToolbar?: (api: RootApi) => ReactNode;
 }
@@ -92,64 +97,68 @@ export function Root({
             now: state.now,
             canUndo: state.past.length > 0,
             canRedo: state.future.length > 0,
-            undo: () => dispatch({ kind: "undo" }),
-            redo: () => dispatch({ kind: "redo" }),
-            reset: () => dispatch({ kind: "reset" }),
+            undo: () => dispatch({ kind: 'undo' }),
+            redo: () => dispatch({ kind: 'redo' }),
+            reset: () => dispatch({ kind: 'reset' }),
             save: () => {
-                if (typeof localStorage !== "undefined") {
+                if (typeof localStorage !== 'undefined') {
                     localStorage.setItem(storageKey, JSON.stringify(state));
                 }
             },
             restore: () => {
-                if (typeof localStorage === "undefined") return;
+                if (typeof localStorage === 'undefined') return;
                 const raw = localStorage.getItem(storageKey);
                 if (!raw) return;
                 try {
-                    dispatch({ kind: "replace", state: JSON.parse(raw) });
+                    dispatch({ kind: 'replace', state: JSON.parse(raw) });
                 } catch {
                     // ignore
                 }
             },
             hasSaved: () =>
-                typeof localStorage !== "undefined" &&
+                typeof localStorage !== 'undefined' &&
                 localStorage.getItem(storageKey) !== null,
             importFile: async (file: File) => {
                 const text = await file.text();
                 try {
-                    dispatch({ kind: "set", value: JSON.parse(text) });
+                    dispatch({ kind: 'set', value: JSON.parse(text) });
                 } catch (e) {
-                    console.error("Failed to import file", e);
+                    console.error('Failed to import file', e);
                 }
             },
             exportFile: () => {
                 const blob = new Blob([JSON.stringify(state.now, null, 2)], {
-                    type: "application/json;charset=utf-8"
+                    type: 'application/json;charset=utf-8'
                 });
-                downloadBlob(blob, "openCPQ.json");
+                downloadBlob(blob, 'openCPQ.json');
             }
         }),
         [state, storageKey]
     );
 
     useEffect(() => {
+        if (!rootRef.current) {
+            return;
+        }
+        
         const el = rootRef.current;
-        if (!el) return;
         const onKey = (e: KeyboardEvent): void => {
             if (!e.ctrlKey || e.altKey || e.metaKey) return;
-            if (e.key === "z" && !e.shiftKey) {
+            if (e.key === 'z' && !e.shiftKey) {
                 e.preventDefault();
                 api.undo();
-            } else if (e.key === "Z" || (e.key === "z" && e.shiftKey)) {
+            } else if (e.key === 'Z' || (e.key === 'z' && e.shiftKey)) {
                 e.preventDefault();
                 api.redo();
             }
         };
-        el.addEventListener("keydown", onKey);
-        return () => el.removeEventListener("keydown", onKey);
+        
+        el.addEventListener('keydown', onKey);
+        return () => el.removeEventListener('keydown', onKey);
     }, [api]);
 
     const updateTo = useCallback(
-        (newValue: unknown) => dispatch({ kind: "set", value: newValue }),
+        (newValue: unknown) => dispatch({ kind: 'set', value: newValue }),
         []
     );
 
@@ -215,7 +224,7 @@ function DefaultToolbar({ api }: { api: RootApi }): ReactNode {
                     Import
                     <input
                         type="file"
-                        style={{ display: "none" }}
+                        style={{ display: 'none' }}
                         onChange={e => {
                             const f = e.target.files?.[0];
                             if (f) void api.importFile(f);

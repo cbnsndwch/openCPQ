@@ -1,15 +1,12 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import {
-    CSelect,
-    ccase,
-    cdefault,
-    SelectNode
-} from "../components/select";
-import { CString } from "../components/primitives";
-import { rootPath } from "../core/path";
-import { Problems } from "../core/problems";
-import type { Ctx } from "../core/types";
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+
+import { string } from '../components/primitives';
+import { select, option, defaultOption } from '../components/select';
+import type { SelectNode } from '../components/select';
+import { rootPath } from '../core/path';
+import { Problems } from '../core/problems';
+import type { Ctx } from '../core/types';
 
 function baseCtx(value: unknown, updateTo: (v: unknown) => void): Ctx {
     return {
@@ -20,33 +17,35 @@ function baseCtx(value: unknown, updateTo: (v: unknown) => void): Ctx {
     } as Ctx;
 }
 
-describe("CSelect", () => {
-    const type = CSelect([
-        cdefault(ccase("a", "Option A")),
-        ccase("b", "Option B", CString()),
-        ccase("c", "Option C")
+describe('select', () => {
+    const type = select([
+        defaultOption(option('a', 'Option A')),
+        option('b', 'Option B', string()),
+        option('c', 'Option C')
     ]);
 
-    it("picks the default case when no value is set", () => {
-        const updateTo = vi.fn();
-        const node = type.makeNode(baseCtx(undefined, updateTo)) as SelectNode;
-        expect(node.caseName).toBe("a");
-    });
-
-    it("honors an explicit user selection", () => {
+    it('picks the default option when no value is set', () => {
         const updateTo = vi.fn();
         const node = type.makeNode(
-            baseCtx({ $case: "b", $detail: "hello" }, updateTo)
-        ) as SelectNode;
-        expect(node.caseName).toBe("b");
+            baseCtx(undefined, updateTo)
+        ) as unknown as SelectNode;
+        expect(node.optionName).toBe('a');
     });
 
-    it("renders all visible options", () => {
+    it('honors an explicit user selection', () => {
         const updateTo = vi.fn();
-        const node = type.makeNode(baseCtx(undefined, updateTo)) as SelectNode;
+        const node = type.makeNode(
+            baseCtx({ $option: 'b', $detail: 'hello' }, updateTo)
+        ) as unknown as SelectNode;
+        expect(node.optionName).toBe('b');
+    });
+
+    it('renders all visible options', () => {
+        const updateTo = vi.fn();
+        const node = type.makeNode(baseCtx(undefined, updateTo));
         render(<>{node.render()}</>);
-        expect(screen.getByText("Option A")).toBeDefined();
-        expect(screen.getByText("Option B")).toBeDefined();
-        expect(screen.getByText("Option C")).toBeDefined();
+        expect(screen.getByText('Option A')).toBeDefined();
+        expect(screen.getByText('Option B')).toBeDefined();
+        expect(screen.getByText('Option C')).toBeDefined();
     });
 });

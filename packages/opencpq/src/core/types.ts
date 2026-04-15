@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
-import type { Path } from "./path";
-import type { Problems } from "./problems";
+import type { ReactNode } from 'react';
+
+import type { Path } from './path';
+import type { Problems } from './problems';
 
 export interface CtxBase {
     path: Path;

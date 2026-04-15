@@ -8,7 +8,7 @@ export abstract class Path {
 
 class RootPath extends Path {
     override toString(): string {
-        return "";
+        return '';
     }
 }
 

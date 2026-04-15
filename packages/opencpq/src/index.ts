@@ -1,110 +1,229 @@
 // Core
-export { Type, Node } from "./core/base";
-export type { MakeNode } from "./core/base";
-export type { Ctx, CtxBase, INode, Visitor } from "./core/types";
-export { rootPath, Path } from "./core/path";
-export { Problems } from "./core/problems";
-export type { ProblemLevel, ProblemMessage } from "./core/problems";
-export { CSideEffect } from "./core/util";
-export { CNameSpace, CNamed } from "./core/names";
-export type { CNamedOptions } from "./core/names";
-export { COp } from "./core/op";
-export type { OpFn } from "./core/op";
-export { serialize, deserialize } from "./core/serialize";
+export { Node, Type } from './core/base';
+export type { MakeNode } from './core/base';
 export {
-    SimpleAdder,
+    linearAggregation,
+    multiplying,
     NamedAdder,
-    CLinearAggregation,
-    CMultiplying
-} from "./core/linear-aggregation";
-export type { Aggregator } from "./core/linear-aggregation";
+    SimpleAdder
+} from './core/linear-aggregation';
+export type { Aggregator } from './core/linear-aggregation';
+export { named, namespace } from './core/names';
+export type { NamedOptions } from './core/names';
+export { op } from './core/op';
+export type { OpFn } from './core/op';
+export { Path, rootPath } from './core/path';
+export { Problems } from './core/problems';
+export type { ProblemLevel, ProblemMessage } from './core/problems';
+export { deserialize, serialize } from './core/serialize';
+export type { Ctx, CtxBase, INode, Visitor } from './core/types';
+export { sideEffect } from './core/util';
+export { makeDataNode, registerView } from './core/node-view';
+export type { DataNode, DataNodeKind } from './core/node-view';
 
 // Components
+export { AccordionNode, accordion } from './components/accordion';
+export { ConfirmOrRetractButton } from './components/confirm-retract';
+export type { ConfirmRetractSize } from './components/confirm-retract';
+export { HBox } from './components/display';
+export { fixedTable, row, FixedTableNode } from './components/fixed-table';
+export type { RawColumnsSpec } from './components/fixed-table';
 export {
+    group,
+    member,
+    unlabelledMember,
+    GroupNode,
+    preprocessMembers
+} from './components/group';
+export type { Member, MemberDecl, RawMemberDecls } from './components/group';
+export { html, HtmlNode } from './components/html';
+export { labeled, LabeledNode } from './components/label';
+export { panel, PanelNode } from './components/panel';
+export type { PanelOptions } from './components/panel';
+export {
+    BooleanNode,
+    boolean,
+    date,
+    integer,
+    number,
+    string,
+    textarea,
+    time,
+    unit,
+    DateNode,
+    IntegerNode,
+    NumberNode,
     PrimitiveValueNode,
     StringNode,
-    CString,
     TextareaNode,
-    CTextarea,
-    IntegerNode,
-    CInteger,
-    NumberNode,
-    CNumber,
-    DateNode,
-    CDate,
     TimeNode,
-    CTime,
-    BooleanNode,
-    CBoolean,
-    UnitNode,
-    CUnit
-} from "./components/primitives";
+    UnitNode
+} from './components/primitives';
+export { renderProblems, VProblems } from './components/problems-view';
 export {
-    CSelect,
-    SelectNode,
-    ccase,
-    cdefault,
-    csel,
-    unansweredCase,
-    CEither,
-    EitherNode
-} from "./components/select";
-export type { Case, CaseMode, SelectValue, RawCases, EitherOptions } from "./components/select";
+    option,
+    defaultOption,
+    either,
+    selected,
+    select,
+    unansweredOption
+} from './components/select';
+export type {
+    EitherNode,
+    EitherOptions,
+    Option,
+    OptionMode,
+    RawOptions,
+    SelectedValue,
+    SelectNode
+} from './components/select';
+export { tabs, TabbedAreaNode } from './components/tabbed-area';
+export { column, table, TableNode } from './components/table';
+export type { Column, TableOptions } from './components/table';
 export {
-    CGroup,
-    GroupNode,
-    cmember,
-    cUnlabelledMember,
-    preprocessMembers
-} from "./components/group";
-export type { MemberDecl, Member, RawMemberDecls } from "./components/group";
-export {
-    CValidate,
-    CValidationMessages,
-    ValidationNode,
-    ValidationMessagesNode,
+    validate,
+    validationMessages,
     renderValidation,
-    renderWithValidation
-} from "./components/validation";
-export type { ValidationCallbacks, ValidationTestFn } from "./components/validation";
-export { CLabeled, LabeledNode } from "./components/label";
-export { CHtml, HtmlNode } from "./components/html";
-export { CPanel, PanelNode } from "./components/panel";
-export type { PanelOptions } from "./components/panel";
-export { CTable, TableNode, ccolumn } from "./components/table";
-export type { Column, CTableOptions } from "./components/table";
-export { CFixedTable, FixedTableNode, crow } from "./components/fixed-table";
-export type { RawColumnsSpec } from "./components/fixed-table";
-export { CAccordion, AccordionNode } from "./components/accordion";
-export { CTabbedArea, TabbedAreaNode } from "./components/tabbed-area";
-export { ConfirmOrRetractButton } from "./components/confirm-retract";
-export type { ConfirmRetractSize } from "./components/confirm-retract";
-export { HBox } from "./components/display";
-export { renderProblems, VProblems } from "./components/problems-view";
+    renderWithValidation,
+    ValidationMessagesNode,
+    ValidationNode
+} from './components/validation';
+export type {
+    ValidationCallbacks,
+    ValidationTestFn
+} from './components/validation';
 
 // Domain
-export { View, CWorkbench, WorkbenchNode } from "./domain/workbench";
-export type { ViewsFn, WorkbenchRender } from "./domain/workbench";
-export { CBOMEntry, BOMView, VBOM, csvLine } from "./domain/bom";
-export type { BOMItemEntry } from "./domain/bom";
-export { CQuantified, CQuantifiedList } from "./domain/quantification";
+export { BOMView, bomEntry, csvLine, VBOM } from './domain/bom';
+export type { BOMItemEntry } from './domain/bom';
+export { quantified, quantifiedList } from './domain/quantification';
+export { tocEntry, TOC, TOCNode, VTOC } from './domain/toc';
+export type { HeadingFn } from './domain/toc';
 export {
-    CImage,
-    CTransform,
-    CSVGRoot,
-    CWrapVisualization,
+    image,
+    svgRoot,
+    transform,
+    wrapVisualization,
+    SVGImage,
     Visualization,
     VisualizationContainer,
-    SVGImage,
     VVisualization
-} from "./domain/visualization";
-export type { ImageSpec, RawImageSpec, Renderable } from "./domain/visualization";
-export { TOC, VTOC, CTOCEntry, TOCNode } from "./domain/toc";
-export type { HeadingFn } from "./domain/toc";
+} from './domain/visualization';
+export type {
+    ImageSpec,
+    RawImageSpec,
+    Renderable
+} from './domain/visualization';
+export { workbench, View, WorkbenchNode } from './domain/workbench';
+export type { ViewsFn, WorkbenchRender } from './domain/workbench';
 
 // App shells
-export { Root } from "./app/Root";
-export type { RootProps, RootApi } from "./app/Root";
-export { EmbeddedRoot } from "./app/EmbeddedRoot";
-export type { EmbeddedRootProps } from "./app/EmbeddedRoot";
-export { downloadBlob } from "./app/download";
+export { downloadBlob } from './app/download';
+export { EmbeddedRoot } from './app/EmbeddedRoot';
+export type { EmbeddedRootProps } from './app/EmbeddedRoot';
+export { Root } from './app/Root';
+export type { RootApi, RootProps } from './app/Root';
+
+// --- Namespace -------------------------------------------------------------
+//
+// The `t` namespace bundles every type factory and value helper under a
+// single object. It's the recommended way to consume openCPQ:
+//
+//     import { t } from '@cbnsndwch/opencpq';
+//     t.group([
+//         t.member('color', 'Color', t.select([
+//             t.option('red', 'Red'),
+//             t.defaultOption(t.option('blue', 'Blue'))
+//         ]))
+//     ])
+//
+// Individual named exports above are kept for tree-shaking and advanced use.
+
+import { accordion } from './components/accordion';
+import { fixedTable, row } from './components/fixed-table';
+import { group, member, unlabelledMember } from './components/group';
+import { html } from './components/html';
+import { labeled } from './components/label';
+import { panel } from './components/panel';
+import {
+    boolean,
+    date,
+    integer,
+    number,
+    string,
+    textarea,
+    time,
+    unit
+} from './components/primitives';
+import {
+    option,
+    defaultOption,
+    either,
+    selected,
+    select,
+    unansweredOption
+} from './components/select';
+import { tabs } from './components/tabbed-area';
+import { column, table } from './components/table';
+import { validate, validationMessages } from './components/validation';
+import { linearAggregation, multiplying } from './core/linear-aggregation';
+import { named, namespace } from './core/names';
+import { op } from './core/op';
+import { sideEffect } from './core/util';
+import { bomEntry } from './domain/bom';
+import { quantified, quantifiedList } from './domain/quantification';
+import { tocEntry } from './domain/toc';
+import { image, svgRoot, transform, wrapVisualization } from './domain/visualization';
+import { workbench } from './domain/workbench';
+
+export const t = {
+    // primitives
+    string,
+    textarea,
+    integer,
+    number,
+    boolean,
+    date,
+    time,
+    unit,
+    // structural
+    group,
+    member,
+    unlabelledMember,
+    labeled,
+    panel,
+    html,
+    accordion,
+    tabs,
+    table,
+    column,
+    fixedTable,
+    row,
+    // select / either
+    select,
+    either,
+    option,
+    defaultOption,
+    selected,
+    unansweredOption,
+    // validation
+    validate,
+    validationMessages,
+    // core combinators
+    op,
+    sideEffect,
+    named,
+    namespace,
+    linearAggregation,
+    multiplying,
+    // domain
+    quantified,
+    quantifiedList,
+    bomEntry,
+    tocEntry,
+    workbench,
+    image,
+    svgRoot,
+    transform,
+    wrapVisualization
+} as const;

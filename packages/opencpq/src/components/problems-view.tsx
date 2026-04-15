@@ -1,15 +1,16 @@
-import type { ReactNode } from "react";
-import type { Problems, ProblemLevel } from "../core/problems";
-import { View } from "../domain/workbench";
+import type { ReactNode } from 'react';
+
+import type { Problems, ProblemLevel } from '../core/problems';
+import { View } from '../domain/workbench';
 
 const iconFor: Record<ProblemLevel, string> = {
-    error: "⛔",
-    warning: "⚠",
-    info: "ℹ"
+    error: '⛔',
+    warning: '⚠',
+    info: 'ℹ'
 };
 
 export function renderProblems(problems: Problems): ReactNode {
-    const rows = problems.list.filter(p => p.level !== "info");
+    const rows = problems.list.filter(p => p.level !== 'info');
     if (rows.length === 0) {
         return (
             <div className="cpq-validate cpq-validate-info">(no entries)</div>
@@ -21,9 +22,12 @@ export function renderProblems(problems: Problems): ReactNode {
                 {rows.map(({ level, msg, fragment }, i) => (
                     <tr key={i}>
                         <td className={`cpq-problem-msg cpq-problem-${level}`}>
-                            <span className="cpq-validate-icon" aria-hidden="true">
+                            <span
+                                className="cpq-validate-icon"
+                                aria-hidden="true"
+                            >
                                 {iconFor[level]}
-                            </span>{" "}
+                            </span>{' '}
                             <a href={`#${fragment}`}>{msg}</a>
                         </td>
                     </tr>
@@ -34,5 +38,5 @@ export function renderProblems(problems: Problems): ReactNode {
 }
 
 export function VProblems({ problems }: { problems: Problems }): View {
-    return new View("problems", () => renderProblems(problems));
+    return new View('problems', () => renderProblems(problems));
 }

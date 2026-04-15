@@ -1,12 +1,12 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
-export type ConfirmRetractSize = "xs" | "sm" | "md" | "lg";
+export type ConfirmRetractSize = 'xs' | 'sm' | 'md' | 'lg';
 
 export function ConfirmOrRetractButton({
     userSelected,
     confirm,
     retract,
-    size = "md"
+    size = 'md'
 }: {
     userSelected: boolean;
     confirm: () => void;

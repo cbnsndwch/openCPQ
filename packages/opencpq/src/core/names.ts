@@ -1,27 +1,27 @@
-import { Type } from "./base";
-import type { Node } from "./base";
-import { CSideEffect } from "./util";
+import { Type } from './base';
+import type { Node } from './base';
+import { sideEffect } from './util';
 
-export function CNameSpace(nameSpaceName: string, type: Type): Type {
-    return new Type("nameSpace", function makeNameSpace(ctx) {
+export function namespace(nameSpaceName: string, type: Type): Type {
+    return new Type('nameSpace', function makeNameSpace(ctx) {
         return type.makeNode({ ...ctx, [nameSpaceName]: {} });
     });
 }
 
-const identity = <T,>(x: T): T => x;
+const identity = <T>(x: T): T => x;
 
-export interface CNamedOptions {
+export interface NamedOptions {
     valueAccessor?: (node: Node) => unknown;
 }
 
-export function CNamed(
+export function named(
     nameSpaceName: string,
     name: string,
-    options: CNamedOptions,
+    options: NamedOptions,
     type: Type
 ): Type {
     const { valueAccessor = identity } = options;
-    return CSideEffect((node, ctx) => {
+    return sideEffect((node, ctx) => {
         const ns = ctx[nameSpaceName] as Record<string, unknown>;
         ns[name] = valueAccessor(node);
     }, type);

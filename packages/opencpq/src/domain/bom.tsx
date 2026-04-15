@@ -1,9 +1,11 @@
-import type { ReactNode } from "react";
-import { Type } from "../core/base";
-import { NamedAdder } from "../core/linear-aggregation";
-import { CSideEffect } from "../core/util";
-import { View } from "./workbench";
-import { downloadBlob } from "../app/download";
+import type { ReactNode } from 'react';
+
+import { downloadBlob } from '../app/download';
+import { Type } from '../core/base';
+import { NamedAdder } from '../core/linear-aggregation';
+import { sideEffect } from '../core/util';
+
+import { View } from './workbench';
 
 export interface BOMItemEntry {
     itemId: string;
@@ -15,9 +17,9 @@ function csvLine(fields: (string | number)[]): string {
     return (
         fields
             .map(f =>
-                typeof f === "number" ? f : `"${String(f).replace(/"/g, '""')}"`
+                typeof f === 'number' ? f : `"${String(f).replace(/"/g, '""')}"`
             )
-            .join(";") + "\n"
+            .join(';') + '\n'
     );
 }
 
@@ -59,13 +61,13 @@ export class BOMView {
                 csvLine([
                     quantity,
                     item,
-                    entry?.label ?? "",
-                    entry?.materialNumber ?? ""
+                    entry?.label ?? '',
+                    entry?.materialNumber ?? ''
                 ])
             );
         });
-        const blob = new Blob(csv, { type: "text/csv;charset=utf-8" });
-        downloadBlob(blob, "openCPQ.csv");
+        const blob = new Blob(csv, { type: 'text/csv;charset=utf-8' });
+        downloadBlob(blob, 'openCPQ.csv');
     }
 
     renderBOM(): ReactNode {
@@ -99,13 +101,15 @@ export class BOMView {
                             const entry = this.__itemMap[item];
                             return (
                                 <tr key={item}>
-                                    <td className="cpq-bom-quantity">{quantity}</td>
+                                    <td className="cpq-bom-quantity">
+                                        {quantity}
+                                    </td>
                                     <td className="cpq-bom-item">{item}</td>
                                     <td className="cpq-bom-description">
-                                        {entry?.label ?? "(missing)"}
+                                        {entry?.label ?? '(missing)'}
                                     </td>
                                     <td className="cpq-bom-material-number">
-                                        {entry?.materialNumber ?? "(missing)"}
+                                        {entry?.materialNumber ?? '(missing)'}
                                     </td>
                                 </tr>
                             );
@@ -117,16 +121,13 @@ export class BOMView {
     }
 }
 
-export function VBOM(
-    itemList: BOMItemEntry[],
-    ctx: { bom: NamedAdder }
-): View {
-    const view = new BOMView("bom", itemList, ctx.bom);
-    return new View("bom", () => view.render());
+export function VBOM(itemList: BOMItemEntry[], ctx: { bom: NamedAdder }): View {
+    const view = new BOMView('bom', itemList, ctx.bom);
+    return new View('bom', () => view.render());
 }
 
-export function CBOMEntry(name: string, quantity: number, type: Type): Type {
-    return CSideEffect((_node, ctx) => {
+export function bomEntry(name: string, quantity: number, type: Type): Type {
+    return sideEffect((_node, ctx) => {
         const bom = ctx.bom as NamedAdder;
         bom.add(name, quantity);
     }, type);

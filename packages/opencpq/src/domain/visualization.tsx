@@ -1,8 +1,10 @@
-import type { ReactNode } from "react";
-import { Type } from "../core/base";
-import type { Ctx } from "../core/types";
-import { CSideEffect } from "../core/util";
-import { View } from "./workbench";
+import type { ReactNode } from 'react';
+
+import { Type } from '../core/base';
+import type { Ctx } from '../core/types';
+import { sideEffect } from '../core/util';
+
+import { View } from './workbench';
 
 export interface ImageSpec {
     url: string;
@@ -38,12 +40,12 @@ export class SVGImage implements Renderable {
     }
 }
 
-export function CImage(spec: RawImageSpec, type: Type): Type {
-    return CSideEffect((_node, ctx) => {
+export function image(spec: RawImageSpec, type: Type): Type {
+    return sideEffect((_node, ctx) => {
         const vis = ctx.visualization as VisualizationContainer;
         function processSpec(s: RawImageSpec): void {
             if (s === undefined) return;
-            if (typeof s === "function") {
+            if (typeof s === 'function') {
                 processSpec(s(ctx));
             } else if (Array.isArray(s)) {
                 s.forEach(processSpec);
@@ -72,29 +74,32 @@ export class VisualizationContainer implements Renderable {
     }
 }
 
-export function CWrapVisualization(
+export function wrapVisualization(
     renderWrapper: (children: ReactNode[]) => ReactNode,
     type: Type
 ): Type {
-    return new Type("visualizationWrapper", function makeVisualizationWrapper(ctx) {
-        const sub = new VisualizationContainer(renderWrapper);
-        (ctx.visualization as VisualizationContainer).add(sub);
-        return type.makeNode({ ...ctx, visualization: sub });
-    });
+    return new Type(
+        'visualizationWrapper',
+        function makeVisualizationWrapper(ctx) {
+            const sub = new VisualizationContainer(renderWrapper);
+            (ctx.visualization as VisualizationContainer).add(sub);
+            return type.makeNode({ ...ctx, visualization: sub });
+        }
+    );
 }
 
-export function CTransform(spec: string, type: Type): Type {
-    return CWrapVisualization(
+export function transform(spec: string, type: Type): Type {
+    return wrapVisualization(
         (children: ReactNode[]) => <g transform={spec}>{children}</g>,
         type
     );
 }
 
-export function CSVGRoot(
+export function svgRoot(
     { width, height }: { width: number | string; height: number | string },
     type: Type
 ): Type {
-    return CWrapVisualization(
+    return wrapVisualization(
         (children: ReactNode[]) => (
             <svg width={width} height={height}>
                 {children}
@@ -113,5 +118,5 @@ export class Visualization extends VisualizationContainer {
 }
 
 export function VVisualization(ctx: { visualization: Visualization }): View {
-    return new View("visualization", () => ctx.visualization.render());
+    return new View('visualization', () => ctx.visualization.render());
 }

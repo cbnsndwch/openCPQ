@@ -1,10 +1,11 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
+import type { ReactNode } from 'react';
 
-export function CHtml(x: ReactNode | ((ctx: Ctx) => ReactNode)): Type {
-    return new Type("html", function makeHtmlNode(ctx) {
-        return new HtmlNode(typeof x === "function" ? x(ctx) : x);
+import { Node, Type } from '../core/base';
+import type { Ctx } from '../core/types';
+
+export function html(x: ReactNode | ((ctx: Ctx) => ReactNode)): Type {
+    return new Type('html', function makeHtmlNode(ctx) {
+        return new HtmlNode(typeof x === 'function' ? x(ctx) : x);
     });
 }
 

@@ -1,7 +1,9 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
-import { View } from "./workbench";
+import type { ReactNode } from 'react';
+
+import { Type, Node } from '../core/base';
+import type { Ctx } from '../core/types';
+
+import { View } from './workbench';
 
 export class TOC {
     private readonly _children: {
@@ -38,17 +40,17 @@ export class TOC {
 }
 
 export function VTOC(ctx: { toc: TOC }): View {
-    return new View("toc", () => ctx.toc.render());
+    return new View('toc', () => ctx.toc.render());
 }
 
 export type HeadingFn = (node: Node, ctx: Ctx) => ReactNode;
 
-export function CTOCEntry(
+export function tocEntry(
     name: string,
     headingFn: HeadingFn,
     type: Type
 ): Type {
-    return new Type("tocEntry", function makeTOCEntry(ctx) {
+    return new Type('tocEntry', function makeTOCEntry(ctx) {
         const fragment = ctx.path.ext(name).toString();
         const subTOC = new TOC();
         const node = type.makeNode({ ...ctx, toc: subTOC });
@@ -74,10 +76,6 @@ export class TOCNode extends Node {
     }
     override render(): ReactNode {
         const { fragment, node } = this.opts;
-        return (
-            <span id={fragment}>
-                {node.render()}
-            </span>
-        );
+        return <span id={fragment}>{node.render()}</span>;
     }
 }

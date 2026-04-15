@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
-export type ProblemLevel = "error" | "warning" | "info";
+export type ProblemLevel = 'error' | 'warning' | 'info';
 
 export interface ProblemMessage {
     level: ProblemLevel;

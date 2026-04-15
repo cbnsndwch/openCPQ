@@ -1,235 +1,214 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
-import type { ProblemMessage } from "../core/problems";
-import { CValidate, renderWithValidation } from "./validation";
-import { CUnit } from "./primitives";
-import { ConfirmOrRetractButton } from "./confirm-retract";
+import type { FC, ReactNode } from 'react';
 
-export type CaseMode = "plain" | "warning" | "error" | "hidden";
+import { Type } from '../core/base';
+import { makeDataNode, registerView } from '../core/node-view';
+import type { ProblemMessage } from '../core/problems';
+import type { Ctx, INode } from '../core/types';
 
-export interface Case {
+import { ConfirmOrRetractButton } from './confirm-retract';
+import { unit } from './primitives';
+import { validate, renderWithValidation } from './validation';
+
+export type OptionMode = 'plain' | 'warning' | 'error' | 'hidden';
+
+export interface Option {
     name: string;
     label: ReactNode;
     type: Type;
-    mode: CaseMode;
+    mode: OptionMode;
     isDefault: boolean;
     messages?: ProblemMessage[];
 }
 
-export interface SelectValue {
-    $case: string;
+export interface SelectedValue {
+    $option: string;
     $detail?: unknown;
 }
 
-export type RawCases =
-    | Case
+export type RawOptions =
+    | Option
     | undefined
-    | RawCases[]
-    | ((ctx: Ctx) => RawCases);
+    | RawOptions[]
+    | ((ctx: Ctx) => RawOptions);
 
-export function ccase(
+export function option(
     name: string,
     label: ReactNode = name,
-    type: Type = CUnit()
-): Case {
-    return { name, label, type, mode: "plain", isDefault: false };
+    type: Type = unit()
+): Option {
+    return { name, label, type, mode: 'plain', isDefault: false };
 }
 
-export function cdefault(c: Case): Case {
-    return { ...c, isDefault: true };
+export function defaultOption(o: Option): Option {
+    return { ...o, isDefault: true };
 }
 
-export function csel($case: string, $detail?: unknown): SelectValue {
-    return { $case, $detail };
+export function selected($option: string, $detail?: unknown): SelectedValue {
+    return { $option, $detail };
 }
 
-function processCases(ctx: Ctx, rawCases: RawCases): Case[] {
-    const result: Case[] = [];
-    function process(c: RawCases): void {
-        if (c === undefined) return;
-        if (Array.isArray(c)) {
-            c.forEach(process);
-        } else if (typeof c === "function") {
-            process(c(ctx));
+function processOptions(ctx: Ctx, rawOptions: RawOptions): Option[] {
+    const result: Option[] = [];
+    function process(o: RawOptions): void {
+        if (o === undefined) return;
+        if (Array.isArray(o)) {
+            o.forEach(process);
+        } else if (typeof o === 'function') {
+            process(o(ctx));
         } else {
-            result.push(c);
+            result.push(o);
         }
     }
-    process(rawCases);
+    process(rawOptions);
     return result;
 }
 
-const modes: CaseMode[] = ["plain", "warning", "error", "hidden"];
-const modeIdx = (m: CaseMode): number => modes.indexOf(m);
+const modes: OptionMode[] = ['plain', 'warning', 'error', 'hidden'];
+const modeIdx = (m: OptionMode): number => modes.indexOf(m);
 
-function findCaseWithBestMode(cases: Case[]): Case | undefined {
+function findOptionWithBestMode(options: Option[]): Option | undefined {
     let i = modes.length;
-    let best: Case | undefined;
-    for (const c of cases) {
-        const idx = modeIdx(c.mode);
+    let best: Option | undefined;
+    for (const o of options) {
+        const idx = modeIdx(o.mode);
         if (idx < i) {
             i = idx;
-            best = c;
+            best = o;
         }
     }
     return best;
 }
 
-export function CSelect(rawCases: RawCases): Type {
-    return new Type("select", function makeSelect(ctx) {
+export interface SelectNode {
+    readonly kind: 'select';
+    readonly options: Option[];
+    readonly optionName: string;
+    readonly currentOption: Option;
+    readonly userSelected: boolean;
+    readonly mode: OptionMode;
+    readonly messages: ProblemMessage[];
+    readonly detail: INode;
+    readonly retract: () => void;
+    readonly updateOption: (name: string) => void;
+    readonly value: string;
+}
+
+export function select(rawOptions: RawOptions): Type {
+    return new Type('select', function makeSelect(ctx) {
         const { problems } = ctx;
-        let { value } = ctx as Ctx & { value?: SelectValue };
+        let { value } = ctx as Ctx & { value?: SelectedValue };
         const { updateTo } = ctx;
-        const cases = processCases(ctx, rawCases);
-        const defaultCase =
-            cases.find(x => x.isDefault) ??
-            findCaseWithBestMode(cases) ??
-            cases[0];
+        const options = processOptions(ctx, rawOptions);
+        const defaultOpt =
+            options.find(x => x.isDefault) ??
+            findOptionWithBestMode(options) ??
+            options[0];
         const userSelected = value !== undefined;
-        if (!userSelected && defaultCase) {
-            value = csel(defaultCase.name);
+        if (!userSelected && defaultOpt) {
+            value = selected(defaultOpt.name);
         }
-        const { $case: caseName = "", $detail: detail } = value ?? {};
-        const getCase = (name: string): Case | undefined =>
-            cases.find(x => x.name === name);
-        const updateCase = (newCaseName: string): void => {
-            updateTo(csel(newCaseName));
+        const { $option: optionName = '', $detail: detail } = value ?? {};
+        const getOption = (name: string): Option | undefined =>
+            options.find(x => x.name === name);
+        const updateOption = (newOptionName: string): void => {
+            updateTo(selected(newOptionName));
         };
         const updateDetail = (newDetail: unknown): void => {
-            updateTo(csel(caseName, newDetail));
+            updateTo(selected(optionName, newDetail));
         };
-        let currentCase = getCase(caseName);
-        if (currentCase === undefined) {
-            currentCase = {
-                name: caseName,
-                label: `unknown option: ${caseName}`,
-                type: CUnit(),
-                mode: "error",
+        let currentOption = getOption(optionName);
+        if (currentOption === undefined) {
+            currentOption = {
+                name: optionName,
+                label: `unknown option: ${optionName}`,
+                type: unit(),
+                mode: 'error',
                 isDefault: false
             };
         }
-        const { mode, messages: caseMessages = [] } = currentCase;
-        const messages = caseMessages.map(m => problems.add(m));
-        const detailNode = currentCase.type.makeNode({
+        const { mode, messages: optionMessages = [] } = currentOption;
+        const messages = optionMessages.map(m => problems.add(m));
+        const detailNode = currentOption.type.makeNode({
             ...ctx,
             value: detail,
             updateTo: updateDetail
         });
         const retract = (): void => updateTo(undefined);
-        return new SelectNode({
-            cases,
-            caseName,
-            currentCase,
+        return makeDataNode<SelectNode>({
+            kind: 'select',
+            options,
+            optionName,
+            currentOption,
             userSelected,
-            retract,
             mode,
             messages,
-            detailNode,
-            updateCase
+            detail: detailNode,
+            retract,
+            updateOption,
+            value: optionName
         });
     });
 }
 
-interface SelectNodeOptions {
-    cases: Case[];
-    caseName: string;
-    currentCase: Case;
-    userSelected: boolean;
-    retract: () => void;
-    mode: CaseMode;
-    messages: ProblemMessage[];
-    detailNode: Node;
-    updateCase: (name: string) => void;
-}
+const SelectView: FC<{ node: SelectNode }> = ({ node }) => {
+    const {
+        options,
+        optionName,
+        currentOption,
+        userSelected,
+        retract,
+        mode,
+        messages,
+        detail,
+        updateOption
+    } = node;
+    const visibleOptions = options.filter(o => o.mode !== 'hidden');
+    const menu = renderWithValidation(
+        <span className="cpq-select-control">
+            <select
+                className={`cpq-select cpq-select-mode-${mode}`}
+                value={optionName}
+                onChange={e => updateOption(e.target.value)}
+            >
+                {visibleOptions.map(o => (
+                    <option
+                        key={o.name}
+                        value={o.name}
+                        className={`cpq-select-option cpq-option-mode-${o.mode}`}
+                    >
+                        {typeof o.label === 'string' ||
+                        typeof o.label === 'number'
+                            ? o.label
+                            : o.name}
+                    </option>
+                ))}
+            </select>
+            <ConfirmOrRetractButton
+                userSelected={userSelected}
+                confirm={() => updateOption(currentOption.name)}
+                retract={retract}
+            />
+        </span>,
+        messages
+    );
+    const detailRendered = detail.render();
+    return (
+        <div className="cpq-select-wrapper">
+            {menu}
+            {detailRendered !== null && detailRendered !== undefined && (
+                <div className="cpq-select-detail">{detailRendered}</div>
+            )}
+        </div>
+    );
+};
+registerView('select', SelectView);
 
-export class SelectNode extends Node {
-    constructor(options: SelectNodeOptions) {
-        super(options as unknown as Record<string, unknown>);
-    }
-
-    private get opts(): SelectNodeOptions {
-        return this.__options as unknown as SelectNodeOptions;
-    }
-
-    get caseName(): string {
-        return this.opts.caseName;
-    }
-
-    override get value(): string {
-        return this.caseName;
-    }
-
-    get label(): ReactNode {
-        return this.opts.currentCase.label;
-    }
-
-    get currentCase(): Case {
-        return this.opts.currentCase;
-    }
-
-    get detail(): Node {
-        return this.opts.detailNode;
-    }
-
-    override render(): ReactNode {
-        const {
-            cases,
-            caseName,
-            currentCase,
-            userSelected,
-            retract,
-            mode,
-            messages,
-            detailNode,
-            updateCase
-        } = this.opts;
-        const visibleCases = cases.filter(c => c.mode !== "hidden");
-        const menu = renderWithValidation(
-            <span className="cpq-select-control">
-                <select
-                    className={`cpq-select cpq-select-mode-${mode}`}
-                    value={caseName}
-                    onChange={e => updateCase(e.target.value)}
-                >
-                    {visibleCases.map(c => (
-                        <option
-                            key={c.name}
-                            value={c.name}
-                            className={`cpq-select-option cpq-option-mode-${c.mode}`}
-                        >
-                            {typeof c.label === "string" || typeof c.label === "number"
-                                ? c.label
-                                : c.name}
-                        </option>
-                    ))}
-                </select>
-                <ConfirmOrRetractButton
-                    userSelected={userSelected}
-                    confirm={() => updateCase(currentCase.name)}
-                    retract={retract}
-                />
-            </span>,
-            messages
-        );
-        const detail = detailNode.render();
-        return (
-            <div className="cpq-select-wrapper">
-                {menu}
-                {detail !== null && detail !== undefined && (
-                    <div className="cpq-select-detail">{detail}</div>
-                )}
-            </div>
-        );
-    }
-}
-
-export function unansweredCase(label: ReactNode): Case {
-    return cdefault(
-        ccase(
-            "unanswered",
+export function unansweredOption(label: ReactNode): Option {
+    return defaultOption(
+        option(
+            'unanswered',
             label,
-            CValidate((_node, { warning }) => warning("No value selected."))
+            validate((_node, { warning }) => warning('No value selected.'))
         )
     );
 }
@@ -239,95 +218,78 @@ export interface EitherOptions {
     disabled?: boolean;
 }
 
-interface EitherNodeOptions {
-    userSelected: boolean;
-    retract: () => void;
-    choice: boolean;
-    detailNode: Node;
-    updateChoice: (newChoice: boolean) => void;
-    disabled: boolean;
+export interface EitherNode {
+    readonly kind: 'either';
+    readonly userSelected: boolean;
+    readonly choice: boolean;
+    readonly disabled: boolean;
+    readonly detail: INode;
+    readonly retract: () => void;
+    readonly updateChoice: (newChoice: boolean) => void;
+    readonly value: boolean;
 }
 
-export function CEither(
+export function either(
     rawOptions: EitherOptions = {},
     thenType?: Type,
     elseType?: Type
 ): Type {
-    return new Type("either", function makeEither(ctx) {
+    return new Type('either', function makeEither(ctx) {
         const { value: rawValue = {}, updateTo } = ctx as Ctx & {
-            value?: { $case?: boolean; $detail?: unknown };
+            value?: { $option?: boolean; $detail?: unknown };
         };
         const defaultValue = rawOptions.defaultValue ?? false;
         const disabled = rawOptions.disabled ?? false;
-        const { $case: choiceRaw, $detail: detail } = rawValue ?? {};
+        const { $option: choiceRaw, $detail: detail } = rawValue ?? {};
         const userSelected = choiceRaw !== undefined;
         const choice = userSelected ? Boolean(choiceRaw) : defaultValue;
-        const detailType = (choice ? thenType : elseType) ?? CUnit();
+        const detailType = (choice ? thenType : elseType) ?? unit();
         const retract = (): void => updateTo(undefined);
         const updateChoice = (newChoice: boolean): void => {
-            updateTo({ $case: newChoice });
+            updateTo({ $option: newChoice });
         };
         const updateDetail = (newDetail: unknown): void => {
-            updateTo({ $case: choice, $detail: newDetail });
+            updateTo({ $option: choice, $detail: newDetail });
         };
         const detailNode = detailType.makeNode({
             ...ctx,
             value: detail,
             updateTo: updateDetail
         });
-        return new EitherNode({
+        return makeDataNode<EitherNode>({
+            kind: 'either',
             userSelected,
-            retract,
             choice,
-            detailNode,
+            disabled,
+            detail: detailNode,
+            retract,
             updateChoice,
-            disabled
+            value: choice
         });
     });
 }
 
-export class EitherNode extends Node {
-    constructor(options: EitherNodeOptions) {
-        super(options as unknown as Record<string, unknown>);
-    }
-
-    private get opts(): EitherNodeOptions {
-        return this.__options as unknown as EitherNodeOptions;
-    }
-
-    get choice(): boolean {
-        return this.opts.choice;
-    }
-
-    override get value(): boolean {
-        return this.choice;
-    }
-
-    get detail(): Node {
-        return this.opts.detailNode;
-    }
-
-    override render(): ReactNode {
-        const { disabled, userSelected, retract, choice, detailNode, updateChoice } =
-            this.opts;
-        return (
-            <div className="cpq-either">
-                <span>
-                    <input
-                        type="checkbox"
-                        checked={choice}
-                        onChange={e => updateChoice(e.target.checked)}
-                        disabled={disabled}
-                    />
-                    <ConfirmOrRetractButton
-                        userSelected={userSelected}
-                        confirm={() => updateChoice(choice)}
-                        retract={retract}
-                        size="xs"
-                    />
-                </span>
-                {detailNode.render()}
-            </div>
-        );
-    }
-}
+const EitherView: FC<{ node: EitherNode }> = ({ node }) => {
+    const { disabled, userSelected, retract, choice, detail, updateChoice } =
+        node;
+    return (
+        <div className="cpq-either">
+            <span>
+                <input
+                    type="checkbox"
+                    checked={choice}
+                    onChange={e => updateChoice(e.target.checked)}
+                    disabled={disabled}
+                />
+                <ConfirmOrRetractButton
+                    userSelected={userSelected}
+                    confirm={() => updateChoice(choice)}
+                    retract={retract}
+                    size="xs"
+                />
+            </span>
+            {detail.render()}
+        </div>
+    );
+};
+registerView('either', EitherView);

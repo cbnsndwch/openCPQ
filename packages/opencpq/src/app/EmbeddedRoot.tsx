@@ -1,12 +1,8 @@
-import {
-    useCallback,
-    useMemo,
-    useReducer,
-    type ReactNode
-} from "react";
-import type { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
-import { serialize, deserialize } from "../core/serialize";
+import { useCallback, useMemo, useReducer, type ReactNode } from 'react';
+
+import type { Type, Node } from '../core/base';
+import { serialize, deserialize } from '../core/serialize';
+import type { Ctx } from '../core/types';
 
 type LinkedList<T> = { car: T; cdr: LinkedList<T> | null } | null;
 
@@ -18,25 +14,25 @@ interface EmbeddedState {
 }
 
 type EmbeddedAction =
-    | { kind: "set"; value: unknown }
-    | { kind: "undo" }
-    | { kind: "undoAll" }
-    | { kind: "redo" }
-    | { kind: "redoAll" }
-    | { kind: "clear" }
-    | { kind: "startOver" };
+    | { kind: 'set'; value: unknown }
+    | { kind: 'undo' }
+    | { kind: 'undoAll' }
+    | { kind: 'redo' }
+    | { kind: 'redoAll' }
+    | { kind: 'clear' }
+    | { kind: 'startOver' };
 
 function reducer(state: EmbeddedState, action: EmbeddedAction): EmbeddedState {
     const { config, past, future } = state;
     switch (action.kind) {
-        case "set":
+        case 'set':
             return {
                 ...state,
                 config: action.value,
                 past: { car: config, cdr: past },
                 future: null
             };
-        case "undo":
+        case 'undo':
             if (!past) return state;
             return {
                 ...state,
@@ -44,7 +40,7 @@ function reducer(state: EmbeddedState, action: EmbeddedAction): EmbeddedState {
                 past: past.cdr,
                 future: { car: config, cdr: future }
             };
-        case "undoAll": {
+        case 'undoAll': {
             let c = config;
             let p = past;
             let f = future;
@@ -55,7 +51,7 @@ function reducer(state: EmbeddedState, action: EmbeddedAction): EmbeddedState {
             }
             return { ...state, config: c, past: p, future: f };
         }
-        case "redo":
+        case 'redo':
             if (!future) return state;
             return {
                 ...state,
@@ -63,7 +59,7 @@ function reducer(state: EmbeddedState, action: EmbeddedAction): EmbeddedState {
                 past: { car: config, cdr: past },
                 future: future.cdr
             };
-        case "redoAll": {
+        case 'redoAll': {
             let c = config;
             let p = past;
             let f = future;
@@ -74,14 +70,14 @@ function reducer(state: EmbeddedState, action: EmbeddedAction): EmbeddedState {
             }
             return { ...state, config: c, past: p, future: f };
         }
-        case "clear":
+        case 'clear':
             return {
                 ...state,
                 config: undefined,
                 past: { car: config, cdr: past },
                 future: null
             };
-        case "startOver":
+        case 'startOver':
             return {
                 config: undefined,
                 configValid: true,
@@ -95,7 +91,7 @@ export interface EmbeddedRootProps {
     type: Type;
     initialConfig?: unknown;
     initialConfigValid?: boolean;
-    initialCtxProvider: () => Omit<Ctx, "value" | "updateTo">;
+    initialCtxProvider: () => Omit<Ctx, 'value' | 'updateTo'>;
     makeResult: (node: Node, ctx: Ctx) => Record<string, unknown>;
     onClose: (result?: Record<string, unknown>) => void;
 }
@@ -116,7 +112,7 @@ export function EmbeddedRoot({
     });
 
     const updateTo = useCallback(
-        (v: unknown) => dispatch({ kind: "set", value: v }),
+        (v: unknown) => dispatch({ kind: 'set', value: v }),
         []
     );
 
@@ -134,15 +130,17 @@ export function EmbeddedRoot({
         return (
             <div className="cpq-embedded cpq-invalid">
                 <h1>Invalid Configuration</h1>
-                <p>This configurator has received invalid configuration data.</p>
+                <p>
+                    This configurator has received invalid configuration data.
+                </p>
                 <p>
                     <button type="button" onClick={() => onClose()}>
                         Close
-                    </button>{" "}
-                    this configurator and solve the problem outside, or{" "}
+                    </button>{' '}
+                    this configurator and solve the problem outside, or{' '}
                     <button
                         type="button"
-                        onClick={() => dispatch({ kind: "startOver" })}
+                        onClick={() => dispatch({ kind: 'startOver' })}
                     >
                         start over with an empty configuration
                     </button>
@@ -185,7 +183,7 @@ export function EmbeddedRoot({
                         type="button"
                         className="cpq-btn"
                         disabled={state.config == null}
-                        onClick={() => dispatch({ kind: "clear" })}
+                        onClick={() => dispatch({ kind: 'clear' })}
                     >
                         Clear
                     </button>
@@ -195,7 +193,7 @@ export function EmbeddedRoot({
                         type="button"
                         className="cpq-btn"
                         disabled={!state.past}
-                        onClick={() => dispatch({ kind: "undoAll" })}
+                        onClick={() => dispatch({ kind: 'undoAll' })}
                     >
                         ⇤ Undo All
                     </button>
@@ -203,7 +201,7 @@ export function EmbeddedRoot({
                         type="button"
                         className="cpq-btn"
                         disabled={!state.past}
-                        onClick={() => dispatch({ kind: "undo" })}
+                        onClick={() => dispatch({ kind: 'undo' })}
                     >
                         ↶ Undo
                     </button>
@@ -211,7 +209,7 @@ export function EmbeddedRoot({
                         type="button"
                         className="cpq-btn"
                         disabled={!state.future}
-                        onClick={() => dispatch({ kind: "redo" })}
+                        onClick={() => dispatch({ kind: 'redo' })}
                     >
                         ↷ Redo
                     </button>
@@ -219,7 +217,7 @@ export function EmbeddedRoot({
                         type="button"
                         className="cpq-btn"
                         disabled={!state.future}
-                        onClick={() => dispatch({ kind: "redoAll" })}
+                        onClick={() => dispatch({ kind: 'redoAll' })}
                     >
                         ⇥ Redo All
                     </button>

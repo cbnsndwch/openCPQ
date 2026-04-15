@@ -6,15 +6,15 @@
  */
 
 function serializeString(s: string): string {
-    return `"${s.replace(/[\\"]/g, "\\$&")}"`;
+    return `"${s.replace(/[\\"]/g, '\\$&')}"`;
 }
 
 function deserializeString(s: string): string {
-    return s.substring(1, s.length - 1).replace(/\\(.)/g, "$1");
+    return s.substring(1, s.length - 1).replace(/\\(.)/g, '$1');
 }
 
-const SEEN = Symbol("seen");
-const ALIASED = Symbol("aliased");
+const SEEN = Symbol('seen');
+const ALIASED = Symbol('aliased');
 
 type AliasState = typeof SEEN | typeof ALIASED | number;
 
@@ -22,7 +22,7 @@ export function serialize(root: unknown): string {
     const aliasInfo = new Map<object, AliasState>();
 
     function preprocess(o: unknown): void {
-        if (typeof o === "object" && o !== null) {
+        if (typeof o === 'object' && o !== null) {
             const n = aliasInfo.get(o);
             if (n === undefined) {
                 aliasInfo.set(o, SEEN);
@@ -41,19 +41,19 @@ export function serialize(root: unknown): string {
 
     function handle(o: unknown): void {
         switch (typeof o) {
-            case "undefined":
-                out.push("undefined");
+            case 'undefined':
+                out.push('undefined');
                 return;
-            case "boolean":
-            case "number":
+            case 'boolean':
+            case 'number':
                 out.push(String(o));
                 return;
-            case "string":
+            case 'string':
                 out.push(serializeString(o));
                 return;
-            case "object": {
+            case 'object': {
                 if (o === null) {
-                    out.push("null");
+                    out.push('null');
                     return;
                 }
                 const lookup = aliasInfo.get(o as object);
@@ -61,71 +61,71 @@ export function serialize(root: unknown): string {
                     // non-aliased, fall through
                 } else if (lookup === ALIASED) {
                     const label = labelCounter++;
-                    out.push("#", label);
+                    out.push('#', label);
                     aliasInfo.set(o as object, label);
-                } else if (typeof lookup === "number") {
-                    out.push("^", lookup);
+                } else if (typeof lookup === 'number') {
+                    out.push('^', lookup);
                     return;
                 }
 
                 const ctor = (o as object).constructor;
                 if (ctor === Number) {
-                    out.push("N:", (o as { valueOf(): number }).valueOf());
+                    out.push('N:', (o as { valueOf(): number }).valueOf());
                     return;
                 }
                 if (ctor === Boolean) {
                     out.push(
-                        "B:",
+                        'B:',
                         String((o as { valueOf(): boolean }).valueOf())
                     );
                     return;
                 }
                 if (ctor === String) {
                     out.push(
-                        "S:",
-                        serializeString(
-                            (o as { valueOf(): string }).valueOf()
-                        )
+                        'S:',
+                        serializeString((o as { valueOf(): string }).valueOf())
                     );
                     return;
                 }
                 if (ctor === Date) {
-                    out.push("D:", (o as Date).valueOf());
+                    out.push('D:', (o as Date).valueOf());
                     return;
                 }
                 if (Array.isArray(o)) {
                     const len = o.length;
-                    out.push("[");
+                    out.push('[');
                     for (let i = 0; i < len; i++) {
                         if (Object.prototype.hasOwnProperty.call(o, i)) {
                             handle(o[i]);
                         }
-                        out.push(";");
+                        out.push(';');
                     }
-                    out.push("]");
+                    out.push(']');
                     return;
                 }
                 if (ctor === Object) {
-                    out.push("{");
+                    out.push('{');
                     for (const k of Object.keys(o as object)) {
-                        out.push(serializeString(k), ":");
+                        out.push(serializeString(k), ':');
                         handle((o as Record<string, unknown>)[k]);
-                        out.push(";");
+                        out.push(';');
                     }
-                    out.push("}");
+                    out.push('}');
                     return;
                 }
                 throw new Error(
-                    `serialization not supported for class ${ctor?.name ?? "<unknown>"}`
+                    `serialization not supported for class ${ctor?.name ?? '<unknown>'}`
                 );
             }
             default:
-                throw new Error(`serialization not supported for type '${typeof o}'`);
+                throw new Error(
+                    `serialization not supported for type '${typeof o}'`
+                );
         }
     }
 
     handle(root);
-    return out.join("");
+    return out.join('');
 }
 
 const tokenRE =
@@ -136,7 +136,7 @@ function isStringToken(t: string): boolean {
 }
 function isNumberToken(t: string): boolean {
     const c = t[0]!;
-    return (c >= "0" && c <= "9") || c === "." || c === "-" || c === "+";
+    return (c >= '0' && c <= '9') || c === '.' || c === '-' || c === '+';
 }
 function isLabelToken(t: string): boolean {
     return /^[0-9]+$/.test(t);
@@ -147,7 +147,7 @@ export function deserialize(s: string): unknown {
     let next: string | null = null;
 
     function pushBack(token: string): void {
-        if (next !== null) throw "Internal parser error: duplicate push-back.";
+        if (next !== null) throw 'Internal parser error: duplicate push-back.';
         next = token;
     }
 
@@ -159,13 +159,16 @@ export function deserialize(s: string): unknown {
         }
         const rest = s.substring(offset);
         const match = tokenRE.exec(rest);
-        if (!match) throw "Could not read token.";
+        if (!match) throw 'Could not read token.';
         const result = match[0];
         offset += result.length;
         return result;
     }
 
-    function expectNextToken(what: string, test: (t: string) => boolean): string {
+    function expectNextToken(
+        what: string,
+        test: (t: string) => boolean
+    ): string {
         const result = nextToken();
         if (!test(result)) {
             pushBack(result);
@@ -193,74 +196,83 @@ export function deserialize(s: string): unknown {
         }
         const token = nextToken();
         switch (token) {
-            case "undefined":
+            case 'undefined':
                 return undefined;
-            case "null":
+            case 'null':
                 return null;
-            case "false":
+            case 'false':
                 return false;
-            case "true":
+            case 'true':
                 return true;
-            case "N:":
+            case 'N:':
                 return register(
-                    new Number(parseFloat(expectNextToken("number", isNumberToken)))
+                    new Number(
+                        parseFloat(expectNextToken('number', isNumberToken))
+                    )
                 );
-            case "S:":
+            case 'S:':
                 return register(
                     new String(
-                        deserializeString(expectNextToken("string", isStringToken))
-                    )
-                );
-            case "B:":
-                return register(
-                    new Boolean(
-                        expectNextToken(
-                            "boolean",
-                            t => t === "true" || t === "false"
-                        ) === "true"
-                    )
-                );
-            case "D:":
-                return register(
-                    new Date(
-                        parseInt(
-                            expectNextToken("integer", t => /^[-+]?[0-9]+$/.test(t))
+                        deserializeString(
+                            expectNextToken('string', isStringToken)
                         )
                     )
                 );
-            case "{": {
+            case 'B:':
+                return register(
+                    new Boolean(
+                        expectNextToken(
+                            'boolean',
+                            t => t === 'true' || t === 'false'
+                        ) === 'true'
+                    )
+                );
+            case 'D:':
+                return register(
+                    new Date(
+                        parseInt(
+                            expectNextToken('integer', t =>
+                                /^[-+]?[0-9]+$/.test(t)
+                            )
+                        )
+                    )
+                );
+            case '{': {
                 const o = register<Record<string, unknown>>({});
                 for (;;) {
-                    if (lookAhead() === "}") {
+                    if (lookAhead() === '}') {
                         nextToken();
                         return o;
                     }
-                    const key = expectNextToken("string (key in object)", isStringToken);
-                    expectDelimiter(":");
+                    const key = expectNextToken(
+                        'string (key in object)',
+                        isStringToken
+                    );
+                    expectDelimiter(':');
                     o[deserializeString(key)] = parse();
-                    expectDelimiter(";");
+                    expectDelimiter(';');
                 }
             }
-            case "[": {
+            case '[': {
                 const a = register<unknown[]>([]);
                 for (let n = 0; ; n++) {
                     const t = nextToken();
-                    if (t === ";") {
+                    if (t === ';') {
                         continue;
                     }
-                    if (t === "]") {
+                    if (t === ']') {
                         a.length = n;
                         return a;
                     }
                     pushBack(t);
                     a[n] = parse();
-                    expectDelimiter(";");
+                    expectDelimiter(';');
                 }
             }
-            case "#":
-                return parse(expectNextToken("label", isLabelToken));
-            case "^": {
-                const ref = expectNextToken("label", isLabelToken);
+            case '#':
+                return parse(expectNextToken('label', isLabelToken));
+            case '^': {
+                const ref = expectNextToken('label', isLabelToken);
                 const value = references.get(ref);
                 if (value === undefined) {
                     throw `Dangling reference «${ref}».`;
@@ -271,7 +283,7 @@ export function deserialize(s: string): unknown {
                 if (isStringToken(token)) return deserializeString(token);
                 if (isNumberToken(token)) return parseFloat(token);
                 pushBack(token);
-                throw "Value expected.";
+                throw 'Value expected.';
         }
     }
 
@@ -280,12 +292,12 @@ export function deserialize(s: string): unknown {
         if (offset !== s.length) throw `Found extra text after parsed value.`;
         return result;
     } catch (e) {
-        if (typeof e !== "string") throw e;
+        if (typeof e !== 'string') throw e;
         const pending = next as string | null;
         if (pending !== null) offset -= pending.length;
         throw new Error(
             `Cannot parse serialized value at offset ${offset} looking at «${
-                s.substr(offset, 10) + (s.length > offset + 10 ? "..." : "")
+                s.substr(offset, 10) + (s.length > offset + 10 ? '...' : '')
             }»:\n${e}`
         );
     }

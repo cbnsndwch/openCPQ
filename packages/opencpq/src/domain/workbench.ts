@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
-import { Type, Node } from "../core/base";
-import type { Ctx } from "../core/types";
+import type { ReactNode } from 'react';
+
+import { Type, Node } from '../core/base';
+import type { Ctx } from '../core/types';
 
 export class View {
     readonly name: string;
@@ -14,12 +15,12 @@ export class View {
 export type ViewsFn = (ctx: Ctx) => View[];
 export type WorkbenchRender = (node: Node, views: View[]) => ReactNode;
 
-export function CWorkbench(
+export function workbench(
     viewsFn: ViewsFn,
     render: WorkbenchRender,
     type: Type
 ): Type {
-    return new Type("workbench", function makeWorkbench(ctx) {
+    return new Type('workbench', function makeWorkbench(ctx) {
         return new WorkbenchNode({
             views: viewsFn(ctx),
             render,
