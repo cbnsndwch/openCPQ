@@ -1,0 +1,72 @@
+{
+    "name": "@cbnsndwch/opencpq",
+    "version": "0.3.0",
+    "description": "A headless React 19 library for in-browser product configuration (CPQ)",
+    "keywords": [
+        "CPQ",
+        "configuration",
+        "headless",
+        "product configuration",
+        "react",
+        "react-component"
+    ],
+    "homepage": "https://github.com/cbnsndwch/openCPQ",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/cbnsndwch/openCPQ.git",
+        "directory": "packages/opencpq"
+    },
+    "bugs": "https://github.com/cbnsndwch/openCPQ/issues",
+    "publishConfig": {
+        "access": "public"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "type": "module",
+    "sideEffects": [
+        "**/*.css"
+    ],
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./styles.css": "./dist/styles.css"
+    },
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "lint": "oxlint src",
+        "clean": "rimraf dist"
+    },
+    "devDependencies": {
+        "@testing-library/react": "^16.1.0",
+        "@types/node": "^22.10.0",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@vitejs/plugin-react": "^4.3.4",
+        "jsdom": "^25.0.1",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "rimraf": "^6.0.1",
+        "tsup": "^8.3.5",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8"
+    },
+    "peerDependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "engines": {
+        "node": ">=20"
+    }
+}

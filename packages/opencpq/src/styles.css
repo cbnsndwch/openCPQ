@@ -1,0 +1,308 @@
+/* openCPQ default styles — all classes prefixed cpq- so they never collide
+ * with consumer styles. Override anything freely. */
+
+.cpq-root {
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #222;
+    outline: none;
+}
+
+.cpq-root-body {
+    padding: 8px;
+}
+
+/* Toolbar */
+.cpq-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+    background: #f7f7f7;
+    flex-wrap: wrap;
+}
+.cpq-toolbar-group {
+    display: inline-flex;
+    gap: 4px;
+}
+
+/* Buttons */
+.cpq-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font: inherit;
+    background: #fff;
+    color: #222;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+}
+.cpq-btn:hover:not(:disabled) {
+    background: #f0f0f0;
+}
+.cpq-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.cpq-btn-primary {
+    background: #2563eb;
+    color: #fff;
+    border-color: #1d4ed8;
+}
+.cpq-btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+.cpq-btn-dim {
+    opacity: 0.6;
+    padding: 2px 6px;
+}
+.cpq-btn-xs {
+    padding: 1px 4px;
+    font-size: 0.75em;
+}
+.cpq-btn-sm {
+    padding: 2px 6px;
+    font-size: 0.85em;
+}
+.cpq-btn-lg {
+    padding: 6px 14px;
+    font-size: 1.1em;
+}
+
+/* Inputs */
+.cpq-input {
+    padding: 4px 6px;
+    font: inherit;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+}
+.cpq-input:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+}
+
+.cpq-primitive {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Validation */
+.cpq-validate {
+    margin-top: 2px;
+    font-size: 0.9em;
+}
+.cpq-validate-error {
+    color: #b91c1c;
+}
+.cpq-validate-warning {
+    color: #b45309;
+}
+.cpq-validate-info {
+    color: #6b7280;
+}
+
+/* Layout */
+.cpq-hbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.cpq-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.cpq-group-member {
+    display: block;
+}
+
+.cpq-labeled {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px;
+    align-items: center;
+}
+.cpq-labeled-label {
+    font-weight: 500;
+    color: #444;
+}
+
+/* Select */
+.cpq-select {
+    padding: 4px 6px;
+    font: inherit;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+}
+.cpq-select-mode-warning {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+.cpq-select-mode-error {
+    border-color: #dc2626;
+    background: #fef2f2;
+}
+.cpq-select-detail {
+    margin-left: 16px;
+    padding-left: 8px;
+    border-left: 2px solid #e5e7eb;
+    margin-top: 4px;
+}
+
+/* Panels */
+.cpq-panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin: 4px 0;
+}
+.cpq-panel-header {
+    padding: 6px 10px;
+    background: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 500;
+}
+.cpq-panel-body {
+    padding: 8px 10px;
+}
+.cpq-panel-collapsible > summary {
+    padding: 6px 10px;
+    background: #f3f4f6;
+    cursor: pointer;
+    list-style: none;
+}
+.cpq-panel-collapsible > summary::before {
+    content: "▶ ";
+    display: inline-block;
+    transition: transform 0.15s;
+}
+.cpq-panel-collapsible[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+/* Tables */
+.cpq-table,
+.cpq-fixed-table,
+.cpq-bom-table,
+.cpq-problems {
+    border-collapse: collapse;
+    width: 100%;
+}
+.cpq-table th,
+.cpq-table td,
+.cpq-fixed-table th,
+.cpq-fixed-table td,
+.cpq-bom-table th,
+.cpq-bom-table td {
+    border: 1px solid #e5e7eb;
+    padding: 4px 8px;
+    text-align: left;
+}
+.cpq-table thead th,
+.cpq-fixed-table thead th,
+.cpq-bom-table thead th {
+    background: #f3f4f6;
+}
+
+.cpq-row-ops > summary {
+    cursor: pointer;
+    list-style: none;
+}
+.cpq-row-ops[open] > menu {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 4px 0;
+    margin: 0;
+    list-style: none;
+    z-index: 10;
+}
+.cpq-row-ops menu button {
+    display: block;
+    width: 100%;
+    padding: 4px 12px;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+}
+.cpq-row-ops menu button:hover {
+    background: #f3f4f6;
+}
+
+/* Tabs */
+.cpq-tabbed-area {
+    display: flex;
+    flex-direction: column;
+}
+.cpq-tabs {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+}
+.cpq-tab {
+    padding: 6px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+}
+.cpq-tab-active {
+    border-bottom-color: #2563eb;
+    font-weight: 500;
+}
+.cpq-tab-panel {
+    padding: 8px 0;
+}
+
+/* Accordion */
+.cpq-accordion-item > summary {
+    padding: 6px 10px;
+    background: #f3f4f6;
+    cursor: pointer;
+    list-style: none;
+}
+.cpq-accordion-body {
+    padding: 8px 10px;
+}
+
+/* Problems */
+.cpq-problem-error {
+    color: #b91c1c;
+}
+.cpq-problem-warning {
+    color: #b45309;
+}
+
+/* Embedded */
+.cpq-embedded {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.cpq-embedded-body {
+    flex: 1 1 auto;
+    overflow: auto;
+}
+.cpq-embedded-footer {
+    flex: 0 0 auto;
+    padding: 6px;
+    border-top: 1px solid #ccc;
+    display: flex;
+    gap: 8px;
+}
+.cpq-invalid h1 {
+    color: #b91c1c;
+}
+
+.cpq-visualization {
+    width: 100%;
+    display: inline-flex;
+    flex-wrap: wrap;
+}

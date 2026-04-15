@@ -1,43 +1,34 @@
 {
-  "name": "opencpq",
-  "description": "A library for in-browser product-configuration",
-  "version": "0.2.1",
-  "keywords": [
-    "configuration",
-    "product configuration",
-    "CPQ",
-    "react",
-    "react-component"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/webXcerpt/openCPQ"
-  },
-  "homepage": "http://opencpq.org/",
-  "bugs": "https://github.com/webXcerpt/openCPQ/issues",
-  "license": "MIT",
-  "scripts": {
-    "compile": "./node_modules/.bin/rimraf dst; ./node_modules/.bin/ncp src dst; ./node_modules/.bin/babel src --out-dir dst --source-maps",
-    "watch": "./node_modules/.bin/babel src --out-dir dst --watch --source-maps",
-    "prepublish": "npm run compile"
-  },
-  "main": "dst/index.js",
-  "peerDependencies": {
-    "browser-filesaver": "^1.0.0",
-    "react": "^0.13.1",
-    "react-bootstrap": "^0.20.1",
-    "react-widgets": "^2.4.1"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.1.2",
-    "babel-preset-es2015": "^6.1.2",
-    "babel-preset-react": "^6.1.2",
-    "babel-preset-stage-1": "^6.1.2",
-    "browser-filesaver": "^1.0.0",
-    "ncp": "^2.0.0",
-    "react": "^0.13.1",
-    "react-bootstrap": "^0.20.1",
-    "react-widgets": "^2.4.1",
-    "rimraf": "^2.4.3"
-  }
+    "name": "@cbnsndwch/opencpq-monorepo",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Monorepo for @cbnsndwch/opencpq — a headless React 19 CPQ library",
+    "license": "MIT",
+    "type": "module",
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "typecheck": "turbo run typecheck",
+        "test": "turbo run test",
+        "lint": "turbo run lint",
+        "format": "oxfmt .",
+        "clean": "turbo run clean && rimraf node_modules",
+        "changeset": "changeset",
+        "version-packages": "changeset version",
+        "release": "turbo run build --filter=./packages/* && changeset publish"
+    },
+    "devDependencies": {
+        "@changesets/cli": "^2.27.11",
+        "oxc": "^1.0.1",
+        "oxfmt": "^0.45.0",
+        "oxlint": "^1.60.0",
+        "rimraf": "^6.0.1",
+        "turbo": "^2.3.3",
+        "typescript": "^5.7.2"
+    },
+    "packageManager": "pnpm@10.28.1",
+    "engines": {
+        "node": ">=20",
+        "pnpm": ">=9"
+    }
 }
