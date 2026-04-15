@@ -1,83 +1,78 @@
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 import { Type } from '../core/base';
-import type { Ctx } from '../core/types';
+import { makeDataNode, registerView } from '../core/node-view';
+import type { Ctx, INode } from '../core/types';
 
-import { GroupNode, preprocessMembers } from './group';
+import { preprocessMembers } from './group';
 import type { Member, RawMemberDecls } from './group';
-import { LabeledNode } from './label';
+import type { LabeledNode } from './label';
+
+function asLabeled(n: INode): LabeledNode | undefined {
+    return (n as unknown as { kind?: string }).kind === 'labeled'
+        ? (n as unknown as LabeledNode)
+        : undefined;
+}
+
+export interface TabbedAreaNode {
+    readonly kind: 'tabbed-area';
+    readonly members: readonly Member[];
+    readonly selected: number;
+    readonly select: (key: number) => void;
+}
 
 export function tabs(rawMemberDecls: RawMemberDecls): Type {
     return new Type('tabbed-area', function makeTabbedArea(ctx) {
         const { value = {}, updateTo } = ctx as Ctx & {
             value?: { selectedView?: number };
         };
-        return new TabbedAreaNode(
-            value?.selectedView ?? 0,
-            (key: number) => updateTo({ ...value, selectedView: key }),
-            preprocessMembers(rawMemberDecls, ctx)
-        );
+        return makeDataNode<TabbedAreaNode>({
+            kind: 'tabbed-area',
+            members: preprocessMembers(rawMemberDecls, ctx),
+            selected: value?.selectedView ?? 0,
+            select: (key: number) => updateTo({ ...value, selectedView: key })
+        });
     });
 }
 
-export class TabbedAreaNode extends GroupNode {
-    private readonly _selected: number;
-    private readonly _select: (key: number) => void;
-
-    constructor(
-        selected: number,
-        select: (key: number) => void,
-        members: Member[]
-    ) {
-        super(members);
-        this._selected = selected;
-        this._select = select;
-    }
-
-    override render(): ReactNode {
-        const members = this.members;
-        const activeIndex = Math.max(
-            0,
-            Math.min(this._selected, members.length - 1)
-        );
-        return (
-            <div className="cpq-tabbed-area" role="tablist">
-                <div className="cpq-tabs">
-                    {members.map(({ node }, i) => {
-                        let label: ReactNode = '???';
-                        if (node instanceof LabeledNode) label = node.label;
-                        const selected = i === activeIndex;
-                        return (
-                            <button
-                                key={i}
-                                type="button"
-                                role="tab"
-                                aria-selected={selected}
-                                className={`cpq-tab ${selected ? 'cpq-tab-active' : ''}`}
-                                onClick={() => this._select(i)}
-                            >
-                                {label}
-                            </button>
-                        );
-                    })}
-                </div>
-                <div className="cpq-tab-panels">
-                    {members.map(({ node }, i) => {
-                        if (i !== activeIndex) return null;
-                        const body =
-                            node instanceof LabeledNode ? node.inner : node;
-                        return (
-                            <div
-                                key={i}
-                                role="tabpanel"
-                                className="cpq-tab-panel"
-                            >
-                                {body.render()}
-                            </div>
-                        );
-                    })}
-                </div>
+const TabbedAreaView: FC<{ node: TabbedAreaNode }> = ({ node }) => {
+    const { members, selected, select } = node;
+    const activeIndex = Math.max(0, Math.min(selected, members.length - 1));
+    return (
+        <div className="cpq-tabbed-area" role="tablist">
+            <div className="cpq-tabs">
+                {members.map(({ node: child }, i) => {
+                    let label: ReactNode = '???';
+                    const labeledNode = asLabeled(child);
+                    if (labeledNode) label = labeledNode.label;
+                    const isSelected = i === activeIndex;
+                    return (
+                        <button
+                            key={i}
+                            type="button"
+                            role="tab"
+                            aria-selected={isSelected}
+                            className={`cpq-tab ${isSelected ? 'cpq-tab-active' : ''}`}
+                            onClick={() => select(i)}
+                        >
+                            {label}
+                        </button>
+                    );
+                })}
             </div>
-        );
-    }
-}
+            <div className="cpq-tab-panels">
+                {members.map(({ node: child }, i) => {
+                    if (i !== activeIndex) return null;
+                    const labeledBody = asLabeled(child);
+                    const body = labeledBody?.inner ?? child;
+                    return (
+                        <div key={i} role="tabpanel" className="cpq-tab-panel">
+                            {body.render()}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+registerView('tabbed-area', TabbedAreaView);

@@ -1,43 +1,32 @@
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
-import { Type, Node } from '../core/base';
+import { Type } from '../core/base';
+import { makeDataNode, registerView } from '../core/node-view';
+import type { INode } from '../core/types';
+
+export interface LabeledNode {
+    readonly kind: 'labeled';
+    readonly label: ReactNode;
+    readonly inner: INode;
+    readonly value: unknown;
+}
 
 export function labeled(label: ReactNode, type: Type): Type {
     return new Type('labeled', function makeLabeled(ctx) {
-        return new LabeledNode(label, type.makeNode(ctx));
+        const innerNode = type.makeNode(ctx);
+        return makeDataNode<LabeledNode>({
+            kind: 'labeled',
+            label,
+            inner: innerNode,
+            value: innerNode.value
+        });
     });
 }
 
-export class LabeledNode extends Node {
-    private readonly _label: ReactNode;
-    private readonly _innerNode: Node;
-
-    constructor(label: ReactNode, innerNode: Node) {
-        super();
-        this._label = label;
-        this._innerNode = innerNode;
-    }
-
-    get label(): ReactNode {
-        return this._label;
-    }
-
-    get inner(): Node {
-        return this._innerNode;
-    }
-
-    override get value(): unknown {
-        return this._innerNode.value;
-    }
-
-    override render(): ReactNode {
-        return (
-            <div className="cpq-labeled">
-                <div className="cpq-labeled-label">{this._label}</div>
-                <div className="cpq-labeled-data">
-                    {this._innerNode.render()}
-                </div>
-            </div>
-        );
-    }
-}
+const LabeledView: FC<{ node: LabeledNode }> = ({ node }) => (
+    <div className="cpq-labeled">
+        <div className="cpq-labeled-label">{node.label}</div>
+        <div className="cpq-labeled-data">{node.inner.render()}</div>
+    </div>
+);
+registerView('labeled', LabeledView);

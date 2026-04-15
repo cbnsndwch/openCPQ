@@ -1,6 +1,8 @@
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
+import { createElement, Fragment } from 'react';
 
 import { Type, Node } from '../core/base';
+import { makeDataNode, registerView } from '../core/node-view';
 import type { Ctx } from '../core/types';
 
 export class View {
@@ -15,38 +17,28 @@ export class View {
 export type ViewsFn = (ctx: Ctx) => View[];
 export type WorkbenchRender = (node: Node, views: View[]) => ReactNode;
 
+export interface WorkbenchNode {
+    readonly kind: 'workbench';
+    readonly views: View[];
+    readonly renderFn: WorkbenchRender;
+    readonly inner: Node;
+}
+
 export function workbench(
     viewsFn: ViewsFn,
     render: WorkbenchRender,
     type: Type
 ): Type {
     return new Type('workbench', function makeWorkbench(ctx) {
-        return new WorkbenchNode({
+        return makeDataNode<WorkbenchNode>({
+            kind: 'workbench',
             views: viewsFn(ctx),
-            render,
-            node: type.makeNode(ctx)
+            renderFn: render,
+            inner: type.makeNode(ctx)
         });
     });
 }
 
-interface WorkbenchNodeOptions {
-    views: View[];
-    render: WorkbenchRender;
-    node: Node;
-}
-
-export class WorkbenchNode extends Node {
-    constructor(options: WorkbenchNodeOptions) {
-        super(options as unknown as Record<string, unknown>);
-    }
-    private get opts(): WorkbenchNodeOptions {
-        return this.__options as unknown as WorkbenchNodeOptions;
-    }
-    get inner(): Node {
-        return this.opts.node;
-    }
-    override render(): ReactNode {
-        const { views, render, node } = this.opts;
-        return render(node, views);
-    }
-}
+const WorkbenchView: FC<{ node: WorkbenchNode }> = ({ node }) =>
+    createElement(Fragment, null, node.renderFn(node.inner, node.views));
+registerView('workbench', WorkbenchView);

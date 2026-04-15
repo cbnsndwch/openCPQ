@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
-import { Type, Node } from '../core/base';
+import { Type } from '../core/base';
+import { makeDataNode, registerView } from '../core/node-view';
 import type { ProblemMessage, ProblemLevel } from '../core/problems';
-import type { Ctx } from '../core/types';
+import type { Ctx, INode } from '../core/types';
 
 import { unit } from './primitives';
 
@@ -12,7 +13,7 @@ export type ValidationCallbacks = {
     info: (msg: ReactNode) => void;
 };
 
-export type ValidationTestFn<N extends Node = Node> = (
+export type ValidationTestFn<N extends INode = INode> = (
     node: N,
     callbacks: ValidationCallbacks,
     ctx: Ctx
@@ -52,30 +53,30 @@ export function renderWithValidation(
     );
 }
 
-export function validate(
-    testFn: ValidationTestFn,
-    type: Type = unit()
-): Type {
-    return new Type('validate', function makeValidate(ctx) {
-        return new ValidationNode(testFn, type.makeNode(ctx), ctx);
-    });
+export interface ValidationNode {
+    readonly kind: 'validate';
+    readonly inner: INode;
+    readonly messages: ProblemMessage[];
+    readonly value: unknown;
 }
 
-export class ValidationNode extends Node {
-    private readonly _innerNode: Node;
-    private readonly _messages: ProblemMessage[];
-
-    constructor(testFn: ValidationTestFn, innerNode: Node, ctx: Ctx) {
-        super();
-        this._innerNode = innerNode;
+export function validate(testFn: ValidationTestFn, type: Type = unit()): Type {
+    return new Type('validate', function makeValidate(ctx) {
+        const innerNode = type.makeNode(ctx);
         const messages: ProblemMessage[] = [];
         const emit =
             (level: ProblemLevel) =>
             (msg: ReactNode): void => {
                 messages.push(ctx.problems.add({ level, msg }));
             };
+        const node = makeDataNode<ValidationNode>({
+            kind: 'validate',
+            inner: innerNode,
+            messages,
+            value: innerNode.value
+        });
         testFn(
-            this,
+            node,
             {
                 error: emit('error'),
                 warning: emit('warning'),
@@ -83,37 +84,29 @@ export class ValidationNode extends Node {
             },
             ctx
         );
-        this._messages = messages;
-    }
+        return node;
+    });
+}
 
-    get inner(): Node {
-        return this._innerNode;
-    }
+const ValidationView: FC<{ node: ValidationNode }> = ({ node }) =>
+    renderWithValidation(node.inner.render(), node.messages);
+registerView('validate', ValidationView);
 
-    override get value(): unknown {
-        return this._innerNode.value;
-    }
-
-    override render(): ReactNode {
-        return renderWithValidation(this._innerNode.render(), this._messages);
-    }
+export interface ValidationMessagesNode {
+    readonly kind: 'validationMessages';
+    readonly messages: ProblemMessage[];
 }
 
 export function validationMessages(messages: ProblemMessage[]): Type {
     return new Type('validationMessages', function makeValidationMessages(ctx) {
-        return new ValidationMessagesNode(
-            messages.map(m => ctx.problems.add(m))
-        );
+        return makeDataNode<ValidationMessagesNode>({
+            kind: 'validationMessages',
+            messages: messages.map(m => ctx.problems.add(m))
+        });
     });
 }
 
-export class ValidationMessagesNode extends Node {
-    private readonly _messages: ProblemMessage[];
-    constructor(messages: ProblemMessage[]) {
-        super();
-        this._messages = messages;
-    }
-    override render(): ReactNode {
-        return renderValidation(this._messages);
-    }
-}
+const ValidationMessagesView: FC<{ node: ValidationMessagesNode }> = ({
+    node
+}) => <>{renderValidation(node.messages)}</>;
+registerView('validationMessages', ValidationMessagesView);

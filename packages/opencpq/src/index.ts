@@ -22,26 +22,33 @@ export { makeDataNode, registerView } from './core/node-view';
 export type { DataNode, DataNodeKind } from './core/node-view';
 
 // Components
-export { AccordionNode, accordion } from './components/accordion';
+export { accordion } from './components/accordion';
+export type { AccordionNode } from './components/accordion';
 export { ConfirmOrRetractButton } from './components/confirm-retract';
 export type { ConfirmRetractSize } from './components/confirm-retract';
+export { fixedTable, row } from './components/fixed-table';
+export type { FixedTableNode, RawColumnsSpec } from './components/fixed-table';
 export { HBox } from './components/display';
-export { fixedTable, row, FixedTableNode } from './components/fixed-table';
-export type { RawColumnsSpec } from './components/fixed-table';
 export {
     group,
     member,
     unlabelledMember,
-    GroupNode,
-    preprocessMembers
+    preprocessMembers,
+    findMember
 } from './components/group';
-export type { Member, MemberDecl, RawMemberDecls } from './components/group';
-export { html, HtmlNode } from './components/html';
-export { labeled, LabeledNode } from './components/label';
-export { panel, PanelNode } from './components/panel';
-export type { PanelOptions } from './components/panel';
+export type {
+    GroupNode,
+    Member,
+    MemberDecl,
+    RawMemberDecls
+} from './components/group';
+export { html } from './components/html';
+export type { HtmlNode } from './components/html';
+export { labeled } from './components/label';
+export type { LabeledNode } from './components/label';
+export { panel } from './components/panel';
+export type { PanelOptions, PanelNode } from './components/panel';
 export {
-    BooleanNode,
     boolean,
     date,
     integer,
@@ -49,11 +56,13 @@ export {
     string,
     textarea,
     time,
-    unit,
+    unit
+} from './components/primitives';
+export type {
+    BooleanNode,
     DateNode,
     IntegerNode,
     NumberNode,
-    PrimitiveValueNode,
     StringNode,
     TextareaNode,
     TimeNode,
@@ -77,28 +86,29 @@ export type {
     SelectedValue,
     SelectNode
 } from './components/select';
-export { tabs, TabbedAreaNode } from './components/tabbed-area';
-export { column, table, TableNode } from './components/table';
-export type { Column, TableOptions } from './components/table';
+export { tabs } from './components/tabbed-area';
+export type { TabbedAreaNode } from './components/tabbed-area';
+export { column, table } from './components/table';
+export type { Column, TableNode, TableOptions } from './components/table';
 export {
     validate,
     validationMessages,
     renderValidation,
-    renderWithValidation,
-    ValidationMessagesNode,
-    ValidationNode
+    renderWithValidation
 } from './components/validation';
 export type {
     ValidationCallbacks,
-    ValidationTestFn
+    ValidationTestFn,
+    ValidationNode,
+    ValidationMessagesNode
 } from './components/validation';
 
 // Domain
 export { BOMView, bomEntry, csvLine, VBOM } from './domain/bom';
 export type { BOMItemEntry } from './domain/bom';
 export { quantified, quantifiedList } from './domain/quantification';
-export { tocEntry, TOC, TOCNode, VTOC } from './domain/toc';
-export type { HeadingFn } from './domain/toc';
+export { tocEntry, TOC, VTOC } from './domain/toc';
+export type { HeadingFn, TOCNode } from './domain/toc';
 export {
     image,
     svgRoot,
@@ -114,8 +124,12 @@ export type {
     RawImageSpec,
     Renderable
 } from './domain/visualization';
-export { workbench, View, WorkbenchNode } from './domain/workbench';
-export type { ViewsFn, WorkbenchRender } from './domain/workbench';
+export { workbench, View } from './domain/workbench';
+export type {
+    ViewsFn,
+    WorkbenchNode,
+    WorkbenchRender
+} from './domain/workbench';
 
 // App shells
 export { downloadBlob } from './app/download';
@@ -173,7 +187,12 @@ import { sideEffect } from './core/util';
 import { bomEntry } from './domain/bom';
 import { quantified, quantifiedList } from './domain/quantification';
 import { tocEntry } from './domain/toc';
-import { image, svgRoot, transform, wrapVisualization } from './domain/visualization';
+import {
+    image,
+    svgRoot,
+    transform,
+    wrapVisualization
+} from './domain/visualization';
 import { workbench } from './domain/workbench';
 
 export const t = {

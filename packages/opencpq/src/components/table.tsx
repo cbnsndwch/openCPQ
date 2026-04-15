@@ -1,9 +1,10 @@
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
-import { Type, Node } from '../core/base';
-import type { Ctx } from '../core/types';
+import { Type } from '../core/base';
+import { makeDataNode, registerView } from '../core/node-view';
+import type { Ctx, INode } from '../core/types';
 
-import type { GroupNode } from './group';
+import { findMember, type GroupNode } from './group';
 
 export interface Column {
     name: string;
@@ -18,6 +19,14 @@ export interface TableOptions {
     defaultValue?: unknown[];
 }
 
+export interface TableNode {
+    readonly kind: 'table';
+    readonly columns: Column[];
+    readonly rows: INode[];
+    readonly list: unknown[];
+    readonly splice: (...args: [number, number, ...unknown[]]) => void;
+}
+
 export function table(
     options: TableOptions,
     columnLabels: Column[],
@@ -29,7 +38,7 @@ export function table(
         const value = (
             (ctx.value as unknown[] | undefined) ?? defaultValue
         ).slice();
-        const rows: Node[] = value.map((element = {}, i) => {
+        const rows: INode[] = value.map((element = {}, i) => {
             const updateElement = (newElement: unknown): void => {
                 const newList = value.slice();
                 newList[i] = newElement;
@@ -48,101 +57,84 @@ export function table(
             newList.splice(...args);
             updateTo(newList);
         };
-        return new TableNode({ columnLabels, rows, list: value, splice });
+        return makeDataNode<TableNode>({
+            kind: 'table',
+            columns: columnLabels,
+            rows,
+            list: value,
+            splice
+        });
     });
 }
 
-interface TableNodeOptions {
-    columnLabels: Column[];
-    rows: Node[];
-    list: unknown[];
-    splice: (...args: [number, number, ...unknown[]]) => void;
-}
-
-export class TableNode extends Node {
-    constructor(options: TableNodeOptions) {
-        super(options as unknown as Record<string, unknown>);
-    }
-
-    private get opts(): TableNodeOptions {
-        return this.__options as unknown as TableNodeOptions;
-    }
-
-    get columns(): Column[] {
-        return this.opts.columnLabels;
-    }
-
-    get rows(): Node[] {
-        return this.opts.rows;
-    }
-
-    override render(): ReactNode {
-        const { columnLabels, rows, list, splice } = this.opts;
-        return (
-            <table className="cpq-table">
-                <colgroup>
-                    <col className="cpq-col-buttons" />
-                    {columnLabels.map(({ name }) => (
-                        <col key={name} className={`cpq-col-${name}`} />
+const TableView: FC<{ node: TableNode }> = ({ node }) => {
+    const { columns, rows, list, splice } = node;
+    return (
+        <table className="cpq-table">
+            <colgroup>
+                <col className="cpq-col-buttons" />
+                {columns.map(({ name }) => (
+                    <col key={name} className={`cpq-col-${name}`} />
+                ))}
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>
+                        <button
+                            type="button"
+                            className="cpq-btn cpq-btn-dim"
+                            onClick={() => splice(0, 0, undefined)}
+                            aria-label="Prepend row"
+                        >
+                            +
+                        </button>
+                    </th>
+                    {columns.map(({ name, label }) => (
+                        <th key={name}>{label}</th>
                     ))}
-                </colgroup>
-                <thead>
+                </tr>
+            </thead>
+            <tbody>
+                {rows.length === 0 ? (
                     <tr>
-                        <th>
-                            <button
-                                type="button"
-                                className="cpq-btn cpq-btn-dim"
-                                onClick={() => splice(0, 0, undefined)}
-                                aria-label="Prepend row"
-                            >
-                                +
-                            </button>
-                        </th>
-                        {columnLabels.map(({ name, label }) => (
-                            <th key={name}>{label}</th>
-                        ))}
+                        <td colSpan={columns.length + 1}>
+                            <div className="cpq-validate cpq-validate-info">
+                                (no entries)
+                            </div>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    {rows.length === 0 ? (
-                        <tr>
-                            <td colSpan={columnLabels.length + 1}>
-                                <div className="cpq-validate cpq-validate-info">
-                                    (no entries)
-                                </div>
+                ) : (
+                    rows.map((row, i) => (
+                        <tr key={i}>
+                            <td>
+                                <RowOps
+                                    i={i}
+                                    len={list.length}
+                                    list={list}
+                                    splice={splice}
+                                />
                             </td>
+                            {columns.map(({ name }) => {
+                                const cell = findMember(
+                                    row as unknown as GroupNode,
+                                    name
+                                );
+                                return (
+                                    <td key={name}>
+                                        {cell === undefined
+                                            ? null
+                                            : cell.render()}
+                                    </td>
+                                );
+                            })}
                         </tr>
-                    ) : (
-                        rows.map((row, i) => (
-                            <tr key={i}>
-                                <td>
-                                    <RowOps
-                                        i={i}
-                                        len={list.length}
-                                        list={list}
-                                        splice={splice}
-                                    />
-                                </td>
-                                {columnLabels.map(({ name }) => {
-                                    const member = (
-                                        row as unknown as GroupNode
-                                    ).member?.(name);
-                                    return (
-                                        <td key={name}>
-                                            {member === undefined
-                                                ? null
-                                                : member.render()}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
-        );
-    }
-}
+                    ))
+                )}
+            </tbody>
+        </table>
+    );
+};
+registerView('table', TableView);
 
 function RowOps({
     i,

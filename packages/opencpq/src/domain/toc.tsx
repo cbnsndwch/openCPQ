@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
-import { Type, Node } from '../core/base';
-import type { Ctx } from '../core/types';
+import { Type } from '../core/base';
+import { makeDataNode, registerView } from '../core/node-view';
+import type { Ctx, INode } from '../core/types';
 
 import { View } from './workbench';
 
@@ -43,39 +44,29 @@ export function VTOC(ctx: { toc: TOC }): View {
     return new View('toc', () => ctx.toc.render());
 }
 
-export type HeadingFn = (node: Node, ctx: Ctx) => ReactNode;
+export type HeadingFn = (node: INode, ctx: Ctx) => ReactNode;
 
-export function tocEntry(
-    name: string,
-    headingFn: HeadingFn,
-    type: Type
-): Type {
+export interface TOCNode {
+    readonly kind: 'tocEntry';
+    readonly fragment: string;
+    readonly inner: INode;
+}
+
+export function tocEntry(name: string, headingFn: HeadingFn, type: Type): Type {
     return new Type('tocEntry', function makeTOCEntry(ctx) {
         const fragment = ctx.path.ext(name).toString();
         const subTOC = new TOC();
-        const node = type.makeNode({ ...ctx, toc: subTOC });
-        (ctx.toc as TOC).add(fragment, headingFn(node, ctx), subTOC);
-        return new TOCNode({ fragment, node });
+        const innerNode = type.makeNode({ ...ctx, toc: subTOC });
+        (ctx.toc as TOC).add(fragment, headingFn(innerNode, ctx), subTOC);
+        return makeDataNode<TOCNode>({
+            kind: 'tocEntry',
+            fragment,
+            inner: innerNode
+        });
     });
 }
 
-interface TOCNodeOptions {
-    fragment: string;
-    node: Node;
-}
-
-export class TOCNode extends Node {
-    constructor(opts: TOCNodeOptions) {
-        super(opts as unknown as Record<string, unknown>);
-    }
-    private get opts(): TOCNodeOptions {
-        return this.__options as unknown as TOCNodeOptions;
-    }
-    get inner(): Node {
-        return this.opts.node;
-    }
-    override render(): ReactNode {
-        const { fragment, node } = this.opts;
-        return <span id={fragment}>{node.render()}</span>;
-    }
-}
+const TOCView: FC<{ node: TOCNode }> = ({ node }) => (
+    <span id={node.fragment}>{node.inner.render()}</span>
+);
+registerView('tocEntry', TOCView);

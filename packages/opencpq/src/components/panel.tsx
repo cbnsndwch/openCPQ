@@ -1,6 +1,8 @@
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
-import { Type, Node } from '../core/base';
+import { Type } from '../core/base';
+import { makeDataNode, registerView } from '../core/node-view';
+import type { INode } from '../core/types';
 
 export interface PanelOptions {
     header?: ReactNode;
@@ -9,52 +11,46 @@ export interface PanelOptions {
     className?: string;
 }
 
+export interface PanelNode {
+    readonly kind: 'panel';
+    readonly opts: PanelOptions;
+    readonly inner: INode;
+}
+
 export function panel(options: PanelOptions, type: Type): Type {
     return new Type('panel', function makePanel(ctx) {
-        return new PanelNode(options, type.makeNode(ctx));
+        return makeDataNode<PanelNode>({
+            kind: 'panel',
+            opts: options,
+            inner: type.makeNode(ctx)
+        });
     });
 }
 
-export class PanelNode extends Node {
-    private readonly _opts: PanelOptions;
-    private readonly _inner: Node;
-
-    constructor(opts: PanelOptions, inner: Node) {
-        super();
-        this._opts = opts;
-        this._inner = inner;
-    }
-
-    get inner(): Node {
-        return this._inner;
-    }
-
-    override render(): ReactNode {
-        const {
-            header,
-            collapsible,
-            defaultOpen = true,
-            className
-        } = this._opts;
-        const body = this._inner.render();
-        if (collapsible) {
-            return (
-                <details
-                    open={defaultOpen}
-                    className={`cpq-panel cpq-panel-collapsible ${className ?? ''}`}
-                >
-                    {header !== undefined && <summary>{header}</summary>}
-                    <div className="cpq-panel-body">{body}</div>
-                </details>
-            );
-        }
+const PanelView: FC<{ node: PanelNode }> = ({ node }) => {
+    const {
+        opts: { header, collapsible, defaultOpen = true, className },
+        inner
+    } = node;
+    const body = inner.render();
+    if (collapsible) {
         return (
-            <section className={`cpq-panel ${className ?? ''}`}>
-                {header !== undefined && (
-                    <header className="cpq-panel-header">{header}</header>
-                )}
+            <details
+                open={defaultOpen}
+                className={`cpq-panel cpq-panel-collapsible ${className ?? ''}`}
+            >
+                {header !== undefined && <summary>{header}</summary>}
                 <div className="cpq-panel-body">{body}</div>
-            </section>
+            </details>
         );
     }
-}
+    return (
+        <section className={`cpq-panel ${className ?? ''}`}>
+            {header !== undefined && (
+                <header className="cpq-panel-header">{header}</header>
+            )}
+            <div className="cpq-panel-body">{body}</div>
+        </section>
+    );
+};
+registerView('panel', PanelView);

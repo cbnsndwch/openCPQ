@@ -1,24 +1,22 @@
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
-import { Node, Type } from '../core/base';
+import { Type } from '../core/base';
+import { makeDataNode, registerView } from '../core/node-view';
 import type { Ctx } from '../core/types';
+
+export interface HtmlNode {
+    readonly kind: 'html';
+    readonly html: ReactNode;
+}
 
 export function html(x: ReactNode | ((ctx: Ctx) => ReactNode)): Type {
     return new Type('html', function makeHtmlNode(ctx) {
-        return new HtmlNode(typeof x === 'function' ? x(ctx) : x);
+        return makeDataNode<HtmlNode>({
+            kind: 'html',
+            html: typeof x === 'function' ? x(ctx) : x
+        });
     });
 }
 
-export class HtmlNode extends Node {
-    private readonly _html: ReactNode;
-    constructor(html: ReactNode) {
-        super();
-        this._html = html;
-    }
-    override render(): ReactNode {
-        return this._html;
-    }
-    get html(): ReactNode {
-        return this._html;
-    }
-}
+const HtmlView: FC<{ node: HtmlNode }> = ({ node }) => <>{node.html}</>;
+registerView('html', HtmlView);
