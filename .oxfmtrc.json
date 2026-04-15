@@ -32,25 +32,19 @@
         "node_modules"
     ],
     "sortImports": {
+        "newlinesBetween": true,
         "customGroups": [
             {
                 "groupName": "app-internal",
-                "elementNamePattern": [
-                    "@/**"
-                ]
+                "elementNamePattern": ["@/**"]
             }
         ],
         "groups": [
-            [
-                "value-builtin",
-                "value-external"
-            ],
+            "builtin",
+            "external",
             "app-internal",
-            [
-                "value-parent",
-                "value-sibling",
-                "value-index"
-            ],
+            "parent",
+            ["sibling", "index"],
             "unknown"
         ]
     }

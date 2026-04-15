@@ -1,5 +1,5 @@
 ---
-"@cbnsndwch/opencpq": minor
+'@cbnsndwch/opencpq': minor
 ---
 
 Full rewrite of openCPQ for React 19. TypeScript-first, zero runtime

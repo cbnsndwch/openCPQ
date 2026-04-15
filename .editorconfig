@@ -1,12 +1,14 @@
-root = true
-
+# EditorConfig is awesome: https://EditorConfig.org
 [*]
-charset = utf-8
-indent_style = tab
 indent_size = 4
 tab_width = 4
-
-[package.json]
-charset = utf-8
 indent_style = space
+end_of_line = lf
+
+[*.yml,*.puml]
 indent_size = 2
+tab_width = 2
+indent_style = space
+
+[*.tsx]
+indent_style = space
