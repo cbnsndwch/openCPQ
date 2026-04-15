@@ -2,36 +2,32 @@
     "$schema": "https://turbo.build/schema.json",
     "ui": "stream",
     "tasks": {
+        "clean": {
+            "dependsOn": ["^clean"],
+            "outputs": ["dist/**", "lib/**"]
+        },
         "build": {
             "dependsOn": ["^build"],
-            "inputs": [
-                "src/**",
-                "tsconfig.json",
-                "tsup.config.ts",
-                "vite.config.ts",
-                "vitest.config.ts",
-                "package.json",
-                "index.html"
-            ],
-            "outputs": ["dist/**", ".vite/**"]
+            "outputs": ["dist/**", "build/**", "lib/**"]
         },
         "dev": {
-            "cache": false,
-            "persistent": true
+            "dependsOn": ["^dev"],
+            "outputs": ["dist/**", "build/**", "lib/**"]
+        },
+        "lint": {
+            "outputs": []
+        },
+        "format": {
+            "dependsOn": ["^format"],
+            "outputs": []
+        },
+        "test": {
+            "dependsOn": ["^test"],
+            "outputs": []
         },
         "typecheck": {
             "dependsOn": ["^build"],
             "inputs": ["src/**", "tsconfig.json", "package.json"]
-        },
-        "test": {
-            "dependsOn": ["^build"],
-            "inputs": ["src/**", "vitest.config.ts", "package.json"]
-        },
-        "lint": {
-            "inputs": ["src/**", ".oxlintrc.json"]
-        },
-        "clean": {
-            "cache": false
         }
     }
 }
