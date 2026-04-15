@@ -1,6 +1,6 @@
 {
     "name": "@cbnsndwch/opencpq",
-    "version": "0.3.0",
+    "version": "0.0.0",
     "description": "A headless React 19 library for in-browser product configuration (CPQ)",
     "keywords": [
         "CPQ",
