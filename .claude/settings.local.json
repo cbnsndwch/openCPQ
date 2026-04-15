@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p packages/opencpq examples .changeset .github/workflows)",
+      "Bash(mv src *)",
+      "Bash(mv tsconfig.json packages/opencpq/tsconfig.json)",
+      "Bash(mv tsup.config.ts packages/opencpq/tsup.config.ts)",
+      "Bash(mv vitest.config.ts packages/opencpq/vitest.config.ts)",
+      "Bash(mkdir -p examples/basic/src)",
+      "Bash(mv examples/basic/main.tsx examples/basic/src/main.tsx)",
+      "Bash(rm examples/basic/vite.config.ts examples/basic/tsconfig.json)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm -w exec pnpm approve-builds esbuild)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm --filter @cbnsndwch/opencpq lint)"
+    ]
+  }
+}
