@@ -1,0 +1,13 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "paths": {
+            "@cbnsndwch/opencpq": ["../../packages/opencpq/src/index.ts"],
+            "@cbnsndwch/opencpq/styles.css": [
+                "../../packages/opencpq/src/styles.css"
+            ]
+        },
+        "noEmit": true
+    },
+    "include": ["src", "vite.config.ts"]
+}
