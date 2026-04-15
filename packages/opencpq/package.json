@@ -11,15 +11,12 @@
         "react-component"
     ],
     "homepage": "https://github.com/cbnsndwch/openCPQ",
+    "bugs": "https://github.com/cbnsndwch/openCPQ/issues",
     "license": "MIT",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/cbnsndwch/openCPQ.git",
         "directory": "packages/opencpq"
-    },
-    "bugs": "https://github.com/cbnsndwch/openCPQ/issues",
-    "publishConfig": {
-        "access": "public"
     },
     "files": [
         "dist",
@@ -39,6 +36,9 @@
         },
         "./styles.css": "./dist/styles.css"
     },
+    "publishConfig": {
+        "access": "public"
+    },
     "scripts": {
         "build": "tsup",
         "dev": "tsup --watch",
@@ -46,21 +46,22 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "lint": "oxlint src",
+        "format": "oxfmt src",
         "clean": "rimraf dist"
     },
     "devDependencies": {
-        "@testing-library/react": "^16.1.0",
-        "@types/node": "^22.10.0",
-        "@types/react": "^19.0.0",
-        "@types/react-dom": "^19.0.0",
-        "@vitejs/plugin-react": "^4.3.4",
-        "jsdom": "^25.0.1",
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0",
-        "rimraf": "^6.0.1",
-        "tsup": "^8.3.5",
-        "typescript": "^5.7.2",
-        "vitest": "^2.1.8"
+        "@testing-library/react": "catalog:",
+        "@types/node": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "jsdom": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "rimraf": "catalog:",
+        "tsup": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:"
     },
     "peerDependencies": {
         "react": "^19.0.0",
