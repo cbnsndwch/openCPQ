@@ -12,6 +12,7 @@
         "test": "turbo run test",
         "lint": "turbo run lint",
         "format": "turbo run format",
+        "format:check": "turbo run format:check",
         "clean": "turbo run clean && rimraf node_modules",
         "changeset": "changeset",
         "version-packages": "changeset version",
@@ -27,7 +28,7 @@
         "typescript": "catalog:"
     },
     "engines": {
-        "node": ">=20",
+        "node": "24.x",
         "pnpm": ">=9"
     },
     "packageManager": "pnpm@10.28.1"

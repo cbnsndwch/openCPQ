@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -35,7 +35,7 @@ export function tabs(rawMemberDecls: RawMemberDecls): Type {
     });
 }
 
-const TabbedAreaView: FC<{ node: TabbedAreaNode }> = ({ node }) => {
+const TabbedAreaView: ComponentType<{ node: TabbedAreaNode }> = ({ node }) => {
     const { members, selected, select } = node;
     const activeIndex = Math.max(0, Math.min(selected, members.length - 1));
     return (

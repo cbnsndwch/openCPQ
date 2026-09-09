@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -55,7 +55,7 @@ export function string(options: StringOptions = {}): Type {
     });
 }
 
-const StringInputView: FC<{
+const StringInputView: ComponentType<{
     kind: 'string' | 'textarea';
     node: StringNode | TextareaNode;
 }> = ({ kind, node }) => {
@@ -93,7 +93,7 @@ const StringInputView: FC<{
     );
 };
 
-const StringView: FC<{ node: StringNode }> = ({ node }) => (
+const StringView: ComponentType<{ node: StringNode }> = ({ node }) => (
     <StringInputView kind="string" node={node} />
 );
 registerView('string', StringView);
@@ -131,7 +131,7 @@ export function textarea(options: StringOptions = {}): Type {
     });
 }
 
-const TextareaView: FC<{ node: TextareaNode }> = ({ node }) => (
+const TextareaView: ComponentType<{ node: TextareaNode }> = ({ node }) => (
     <StringInputView kind="textarea" node={node} />
 );
 registerView('textarea', TextareaView);
@@ -181,7 +181,7 @@ export function integer(options: NumericOptions = {}): Type {
     });
 }
 
-const IntegerView: FC<{ node: IntegerNode }> = ({ node }) => (
+const IntegerView: ComponentType<{ node: IntegerNode }> = ({ node }) => (
     <div>
         <StringInputView kind="string" node={node as unknown as StringNode} />
         {/[^0-9]/.test(node.text) ? (
@@ -233,7 +233,7 @@ export function number(options: NumericOptions = {}): Type {
     });
 }
 
-const NumberView: FC<{ node: NumberNode }> = ({ node }) => (
+const NumberView: ComponentType<{ node: NumberNode }> = ({ node }) => (
     <StringInputView kind="string" node={node as unknown as StringNode} />
 );
 registerView('number', NumberView);
@@ -294,7 +294,7 @@ export function date(options: DateTimeOptions = {}): Type {
     });
 }
 
-const DateView: FC<{ node: DateNode }> = ({ node }) => {
+const DateView: ComponentType<{ node: DateNode }> = ({ node }) => {
     const { raw, updateTo, userSelected, value } = node;
     return (
         <HBox>
@@ -344,7 +344,7 @@ export function time(options: DateTimeOptions = {}): Type {
     });
 }
 
-const TimeView: FC<{ node: TimeNode }> = ({ node }) => {
+const TimeView: ComponentType<{ node: TimeNode }> = ({ node }) => {
     const { raw, updateTo, userSelected, value } = node;
     return (
         <HBox>
@@ -412,7 +412,7 @@ export function boolean(options: BooleanOptions = {}): Type {
     });
 }
 
-const BooleanView: FC<{ node: BooleanNode }> = ({ node }) => {
+const BooleanView: ComponentType<{ node: BooleanNode }> = ({ node }) => {
     const { userSelected, retract, disabled, updateTo, value } = node;
     return (
         <span className="cpq-boolean">
@@ -445,5 +445,5 @@ export function unit(): Type {
     });
 }
 
-const UnitView: FC<{ node: UnitNode }> = () => null;
+const UnitView: ComponentType<{ node: UnitNode }> = () => null;
 registerView('unit', UnitView);

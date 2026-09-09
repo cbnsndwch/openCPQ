@@ -110,7 +110,7 @@ const ToppingsGroup = t.panel(
                 { $option?: boolean } | undefined
             >;
             const enabled = Object.entries(toppings).filter(
-                ([_, v]) => v?.$option === true
+                ([, v]) => v?.$option === true
             ).length;
             if (enabled > 6) {
                 error(

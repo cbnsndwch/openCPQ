@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -27,7 +27,7 @@ export function panel(options: PanelOptions, type: Type): Type {
     });
 }
 
-const PanelView: FC<{ node: PanelNode }> = ({ node }) => {
+const PanelView: ComponentType<{ node: PanelNode }> = ({ node }) => {
     const {
         opts: { header, collapsible, defaultOpen = true, className },
         inner

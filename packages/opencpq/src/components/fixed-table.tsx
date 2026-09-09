@@ -1,11 +1,16 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
 import type { Ctx, INode } from '../core/types';
 
-import { group, member, findMember, type GroupNode } from './group';
-import type { RawMemberDecls } from './group';
+import {
+    findMember,
+    group,
+    member,
+    type GroupNode,
+    type RawMemberDecls
+} from './group';
 import type { LabeledNode } from './label';
 import type { Column } from './table';
 
@@ -52,7 +57,7 @@ export function fixedTable(
     });
 }
 
-const FixedTableView: FC<{ node: FixedTableNode }> = ({ node }) => {
+const FixedTableView: ComponentType<{ node: FixedTableNode }> = ({ node }) => {
     const { columns, rows } = node;
     return (
         <table className="cpq-fixed-table">
@@ -64,7 +69,7 @@ const FixedTableView: FC<{ node: FixedTableNode }> = ({ node }) => {
             </colgroup>
             <tbody>
                 <tr>
-                    <th />
+                    <th aria-label="Row label" />
                     {columns.map(({ name, label }) => (
                         <th key={name}>{label}</th>
                     ))}

@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -150,7 +150,7 @@ export function select(rawOptions: RawOptions): Type {
     });
 }
 
-const SelectView: FC<{ node: SelectNode }> = ({ node }) => {
+const SelectView: ComponentType<{ node: SelectNode }> = ({ node }) => {
     const {
         options,
         optionName,
@@ -269,7 +269,7 @@ export function either(
     });
 }
 
-const EitherView: FC<{ node: EitherNode }> = ({ node }) => {
+const EitherView: ComponentType<{ node: EitherNode }> = ({ node }) => {
     const { disabled, userSelected, retract, choice, detail, updateChoice } =
         node;
     return (

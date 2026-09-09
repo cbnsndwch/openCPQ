@@ -1,6 +1,6 @@
 {
     "name": "@cbnsndwch/opencpq",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "description": "A headless React 19 library for in-browser product configuration (CPQ)",
     "keywords": [
         "CPQ",
@@ -34,19 +34,26 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js"
         },
-        "./styles.css": "./dist/styles.css"
+        "./styles.css": {
+            "types": "./dist/styles.css.d.ts",
+            "default": "./dist/styles.css"
+        }
     },
     "publishConfig": {
         "access": "public"
     },
     "scripts": {
-        "build": "tsup",
-        "dev": "tsup --watch",
+        "build": "pnpm run clean && pnpm run build:js && pnpm run build:types && pnpm run build:styles",
+        "build:js": "vite build",
+        "build:types": "tsc -p tsconfig.build.json",
+        "build:styles": "node --input-type=module -e \"import { cpSync } from 'node:fs'; cpSync('src/styles.css', 'dist/styles.css'); cpSync('src/styles.css.d.ts', 'dist/styles.css.d.ts');\"",
+        "dev": "vite build --watch",
         "typecheck": "tsc --noEmit",
         "test": "vitest run",
         "test:watch": "vitest",
         "lint": "oxlint src",
         "format": "oxfmt src",
+        "format:check": "oxfmt --check src",
         "clean": "rimraf dist"
     },
     "devDependencies": {
@@ -59,8 +66,8 @@
         "react": "catalog:",
         "react-dom": "catalog:",
         "rimraf": "catalog:",
-        "tsup": "catalog:",
         "typescript": "catalog:",
+        "vite": "catalog:",
         "vitest": "catalog:"
     },
     "peerDependencies": {

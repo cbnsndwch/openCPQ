@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -90,7 +90,7 @@ export function group(rawMemberDecls: RawMemberDecls): Type {
     });
 }
 
-const GroupView: FC<{ node: GroupNode }> = ({ node }) => (
+const GroupView: ComponentType<{ node: GroupNode }> = ({ node }) => (
     <div className="cpq-group">
         {node.members.map(({ node: child }, i) => (
             <div key={i} className="cpq-group-member">
