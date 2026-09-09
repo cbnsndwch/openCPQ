@@ -100,6 +100,40 @@ for tree-shaking and advanced use.
   localStorage save/restore, and file import/export
 - `EmbeddedRoot` — for configurators embedded via `postMessage`
 
+## Headless evaluation / SSR
+
+If you need server-side document rendering (quotes, proposals, BEOs) or
+Worker-side evaluation, use `evaluate()` to run a type tree without mounting a
+React root:
+
+```tsx
+import { evaluate, NamedAdder, SimpleAdder, t } from '@cbnsndwch/opencpq';
+import { renderToStaticMarkup } from 'react-dom/server';
+
+const totals = { price: new SimpleAdder(), bom: new NamedAdder() };
+const type = t.quantified(
+    t.sideEffect((_node, ctx) => {
+        (ctx.price as SimpleAdder).add(100);
+        (ctx.bom as NamedAdder).add('Line item', 1);
+    })
+);
+
+const { node, problems, aggregators } = evaluate(
+    type,
+    { quantity: 2 },
+    totals
+);
+
+const html = renderToStaticMarkup(node.render());
+const totalPrice = aggregators.price.get();
+const totalLines = aggregators.bom.get('Line item');
+```
+
+`evaluate()` seeds the root context with your aggregators and registers their
+names in `linearAggregators`, so `t.multiplying` and `t.quantified` scale them
+automatically. View registration happens at import time and is DOM-free, so the
+same model can be evaluated and rendered in non-browser environments.
+
 ## Examples
 
 The monorepo at
