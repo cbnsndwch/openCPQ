@@ -16,7 +16,9 @@ export default defineConfig({
         sourcemap: true,
         target: 'es2022',
         rollupOptions: {
-            external: ['react', 'react-dom']
+            // Also externalize sub-path imports (react/jsx-runtime, react-dom/client);
+            // otherwise the CJS jsx runtime is inlined and the ESM bundle can call require("react").
+            external: [/^react(-dom)?(\/.*)?$/]
         }
     }
 });
