@@ -1,6 +1,8 @@
 // Core
 export { Node, Type } from './core/base';
 export type { MakeNode } from './core/base';
+export { evaluate } from './core/evaluate';
+export type { Evaluated } from './core/evaluate';
 export {
     linearAggregation,
     multiplying,
@@ -184,6 +186,7 @@ import { linearAggregation, multiplying } from './core/linear-aggregation';
 import { named, namespace } from './core/names';
 import { op } from './core/op';
 import { sideEffect } from './core/util';
+import { evaluate } from './core/evaluate';
 import { bomEntry } from './domain/bom';
 import { quantified, quantifiedList } from './domain/quantification';
 import { tocEntry } from './domain/toc';
@@ -231,6 +234,7 @@ export const t = {
     // core combinators
     op,
     sideEffect,
+    evaluate,
     named,
     namespace,
     linearAggregation,
