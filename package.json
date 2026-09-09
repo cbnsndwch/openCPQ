@@ -12,6 +12,7 @@
         "test": "turbo run test",
         "lint": "turbo run lint",
         "format": "turbo run format",
+        "format:check": "turbo run format:check",
         "clean": "turbo run clean && rimraf node_modules",
         "changeset": "changeset",
         "version-packages": "changeset version",

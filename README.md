@@ -123,11 +123,11 @@ to npm with provenance. Example apps are private and never published.
 ## Stack
 
 - **React 19** (peer dependency)
-- **TypeScript 5.7** — strict mode everywhere
+- **TypeScript 5.9** — strict mode everywhere
 - **Dual ESM** build via `tsup` with `.d.ts`
 - **pnpm workspaces** + **Turbo** for the monorepo pipeline
-- **Vitest** + jsdom for tests
-- **oxlint** + **oxfmt** for linting and formatting
+- **Vitest 5** + jsdom for tests
+- **OXC** tooling via **oxlint** + **oxfmt**
 - **Changesets** for versioning, **GitHub Actions** for CI/release
 - Node 20+
 

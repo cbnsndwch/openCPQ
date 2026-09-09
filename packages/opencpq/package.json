@@ -47,6 +47,7 @@
         "test:watch": "vitest",
         "lint": "oxlint src",
         "format": "oxfmt src",
+        "format:check": "oxfmt --check src",
         "clean": "rimraf dist"
     },
     "devDependencies": {
