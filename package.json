@@ -28,7 +28,7 @@
         "typescript": "catalog:"
     },
     "engines": {
-        "node": ">=20",
+        "node": "24.x",
         "pnpm": ">=9"
     },
     "packageManager": "pnpm@10.28.1"

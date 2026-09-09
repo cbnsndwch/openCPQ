@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -57,7 +57,7 @@ export function fixedTable(
     });
 }
 
-const FixedTableView: FC<{ node: FixedTableNode }> = ({ node }) => {
+const FixedTableView: ComponentType<{ node: FixedTableNode }> = ({ node }) => {
     const { columns, rows } = node;
     return (
         <table className="cpq-fixed-table">

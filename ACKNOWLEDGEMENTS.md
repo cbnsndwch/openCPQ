@@ -51,7 +51,7 @@ maintenance of openCPQ because the upstream codebase had stopped receiving
 updates while still being conceptually sound. This fork contributes:
 
 - A full ground-up TypeScript rewrite targeting **React 19** and modern
-  tooling (pnpm, Turbo, tsup, vitest, Changesets, oxlint).
+  tooling (pnpm, Turbo, Vite, vitest, Changesets, oxlint).
 - Removal of all 2015-era UI dependencies (`react-bootstrap`,
   `react-widgets`, `browser-filesaver`) in favour of native HTML + a thin
   CSS layer under `cpq-*` class names. Zero runtime dependencies.

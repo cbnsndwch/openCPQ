@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -23,7 +23,7 @@ export function labeled(label: ReactNode, type: Type): Type {
     });
 }
 
-const LabeledView: FC<{ node: LabeledNode }> = ({ node }) => (
+const LabeledView: ComponentType<{ node: LabeledNode }> = ({ node }) => (
     <div className="cpq-labeled">
         <div className="cpq-labeled-label">{node.label}</div>
         <div className="cpq-labeled-data">{node.inner.render()}</div>

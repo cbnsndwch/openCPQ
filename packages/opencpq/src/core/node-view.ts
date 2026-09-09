@@ -1,4 +1,4 @@
-import { createElement, type FC, type ReactNode } from 'react';
+import { createElement, type ComponentType, type ReactNode } from 'react';
 
 import type { AccordionNode } from '../components/accordion';
 import type { FixedTableNode } from '../components/fixed-table';
@@ -54,11 +54,11 @@ export type DataNode =
     | WorkbenchNode;
 export type DataNodeKind = DataNode['kind'];
 
-type ViewFor<K extends DataNodeKind> = FC<{
+type ViewFor<K extends DataNodeKind> = ComponentType<{
     node: Extract<DataNode, { kind: K }>;
 }>;
 
-type AnyView = FC<{ node: DataNode }>;
+type AnyView = ComponentType<{ node: DataNode }>;
 
 const registry: { [K in DataNodeKind]?: AnyView } = {};
 

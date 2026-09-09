@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { createElement, Fragment } from 'react';
 
 import { Type, Node } from '../core/base';
@@ -39,6 +39,6 @@ export function workbench(
     });
 }
 
-const WorkbenchView: FC<{ node: WorkbenchNode }> = ({ node }) =>
+const WorkbenchView: ComponentType<{ node: WorkbenchNode }> = ({ node }) =>
     createElement(Fragment, null, node.renderFn(node.inner, node.views));
 registerView('workbench', WorkbenchView);

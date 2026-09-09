@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -88,7 +88,7 @@ export function validate(testFn: ValidationTestFn, type: Type = unit()): Type {
     });
 }
 
-const ValidationView: FC<{ node: ValidationNode }> = ({ node }) =>
+const ValidationView: ComponentType<{ node: ValidationNode }> = ({ node }) =>
     renderWithValidation(node.inner.render(), node.messages);
 registerView('validate', ValidationView);
 
@@ -106,7 +106,7 @@ export function validationMessages(messages: ProblemMessage[]): Type {
     });
 }
 
-const ValidationMessagesView: FC<{ node: ValidationMessagesNode }> = ({
-    node
-}) => <>{renderValidation(node.messages)}</>;
+const ValidationMessagesView: ComponentType<{
+    node: ValidationMessagesNode;
+}> = ({ node }) => <>{renderValidation(node.messages)}</>;
 registerView('validationMessages', ValidationMessagesView);

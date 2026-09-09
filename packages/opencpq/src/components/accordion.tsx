@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -34,7 +34,7 @@ export function accordion(rawMemberDecls: RawMemberDecls): Type {
     });
 }
 
-const AccordionView: FC<{ node: AccordionNode }> = ({ node }) => {
+const AccordionView: ComponentType<{ node: AccordionNode }> = ({ node }) => {
     const { members, selected, select } = node;
     return (
         <div className="cpq-accordion">

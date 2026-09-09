@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 import { Type } from '../core/base';
 import { makeDataNode, registerView } from '../core/node-view';
@@ -67,7 +67,7 @@ export function table(
     });
 }
 
-const TableView: FC<{ node: TableNode }> = ({ node }) => {
+const TableView: ComponentType<{ node: TableNode }> = ({ node }) => {
     const { columns, rows, list, splice } = node;
     return (
         <table className="cpq-table">
